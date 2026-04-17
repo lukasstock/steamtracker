@@ -45,9 +45,3 @@ services:
     App\Controller\SteamAuthController:
         arguments:
             $inviteToken: '%env(default::FRIEND_INVITE_TOKEN)%'
-
-    App\Controller\GameLibraryController:
-        arguments:
-            $friendInviteToken: '%env(default::FRIEND_INVITE_TOKEN)%'
-
-

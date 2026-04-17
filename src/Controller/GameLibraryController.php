@@ -37,7 +37,6 @@ class GameLibraryController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly UserTokenService $userTokenService,
         private readonly BadgeService $badgeService,
-        private readonly string $friendInviteToken = '',
     ) {}
 
     // ── Landing & entry points ────────────────────────────────────────────────
