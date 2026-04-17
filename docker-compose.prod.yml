@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: steamtracker_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: steamtracker
+      MYSQL_USER: steamtracker
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  php:
+    build: .
+    container_name: steamtracker_php
+    restart: always
+    volumes:
+      - .:/var/www/html
+    environment:
+      DATABASE_URL: "mysql://steamtracker:${DB_PASSWORD}@mysql:3306/steamtracker?serverVersion=8.0&charset=utf8mb4"
+    depends_on:
+      - mysql
+
+  nginx:
+    image: nginx:alpine
+    container_name: steamtracker_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - php
+
+volumes:
+  mysql_data:
