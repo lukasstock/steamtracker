@@ -1,0 +1,24 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 159.69.32.135
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /var/www/steamtracker
+            git pull
+            docker compose -f docker-compose.prod.yml exec -T php composer install --no-dev --optimize-autoloader
+            docker compose -f docker-compose.prod.yml exec -T php php bin/console cache:clear
+            docker compose -f docker-compose.prod.yml restart php nginx
