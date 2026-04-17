@@ -10,21 +10,21 @@ Track your Steam library the way you actually want to. Mark games as playing, co
 
 ## Features
 
-**Library** — Your full Steam library with status tracking (Playing / Completed / Dropped), star ratings, personal notes, and a live "now playing" indicator.
+**Library** - Your full Steam library with status tracking (Playing / Completed / Dropped), star ratings, personal notes, and a live "now playing" indicator.
 
-**Spotlight** — Pin your favourite games to the top of your library via drag and drop.
+**Spotlight** - Pin your favourite games to the top of your library via drag and drop.
 
-**Game Detail** — Deep dive into any game: playtime, HLTB completion time, achievement tracking with rare achievement highlights, and a friends section showing who else owns it.
+**Game Detail** - Deep dive into any game: playtime, HLTB completion time, achievement tracking with rare achievement highlights, and a friends section showing who else owns it.
 
-**Badges** — 19 badges across 6 categories (Completion, Playtime, Rating, Dropped, Library, Special) with 5 tiers up to Legendary.
+**Badges** - 19 badges across 6 categories (Completion, Playtime, Rating, Dropped, Library, Special) with 5 tiers up to Legendary.
 
-**Stats** — A full breakdown of your library: completion rate, most played, backlog hours, rating distribution, and more.
+**Stats** - A full breakdown of your library: completion rate, most played, backlog hours, rating distribution, and more.
 
-**Compare** — Side-by-side library comparison with any Steam friend, including badge comparison.
+**Compare** - Side-by-side library comparison with any Steam friend, including badge comparison.
 
-**Activity Feed** — A global feed of recent completions, drops, and rating changes across all users.
+**Activity Feed** - A global feed of recent completions, drops, and rating changes across all users.
 
-**Friend Invites** — Invite friends via a secret link so they can track their own library too.
+**Friend Invites** - Invite friends via a secret link so they can track their own library too.
 
 ---
 
@@ -46,12 +46,12 @@ Track your Steam library the way you actually want to. Mark games as playing, co
 
 ## Stack
 
-- **Symfony 8 / PHP 8.4** — backend framework
-- **Doctrine ORM + MySQL 8** — database
-- **Twig** — templating
-- **Tailwind CSS (Play CDN) + Vanilla JS** — frontend, no build pipeline
-- **Guzzle** — Steam API HTTP client
-- **Docker Compose** — nginx + php-fpm + mysql
+- **Symfony 8 / PHP 8.4** - backend framework
+- **Doctrine ORM + MySQL 8** - database
+- **Twig** - templating
+- **Tailwind CSS (Play CDN) + Vanilla JS** - frontend, no build pipeline
+- **Guzzle** - Steam API HTTP client
+- **Docker Compose** - nginx + php-fpm + mysql
 
 ---
 

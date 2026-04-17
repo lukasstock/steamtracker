@@ -82,7 +82,7 @@
                     <div class="rounded-xl p-4 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
                         <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">Playtime</div>
                         <div class="text-sm font-bold text-white">
-                            {{ game.playtime_hrs > 0 ? game.playtime_hrs ~ 'h' : '—' }}
+                            {{ game.playtime_hrs > 0 ? game.playtime_hrs ~ 'h' : '-' }}
                         </div>
                     </div>
                     {% if completion and completion.completedAt %}
@@ -103,7 +103,7 @@
                     {% endif %}
                 </div>
 
-                {# Notes — editable for owner, read-only for others #}
+                {# Notes - editable for owner, read-only for others #}
                 {% if is_owner %}
                 <div class="rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
                     <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted px-5 py-3.5 border-b border-white/[0.06]">Notes</h3>
@@ -406,7 +406,7 @@ async function saveNotes() {
         btn.style.background = '#a4d007';
         setTimeout(() => { btn.textContent = 'Save Notes'; btn.style.background = '#1a9fff'; }, 2000);
     } catch {
-        btn.textContent = 'Error — try again';
+        btn.textContent = 'Error - try again';
         btn.style.background = '#ef4444';
         setTimeout(() => { btn.textContent = 'Save Notes'; btn.style.background = '#1a9fff'; }, 2000);
     }

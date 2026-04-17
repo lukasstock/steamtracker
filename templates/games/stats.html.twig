@@ -184,7 +184,7 @@
                 {%- for i in 1..5 -%}<span style="opacity:{{ i <= avg_rating|round ? '1' : '0.25' }};">★</span>{%- endfor -%}
             </div>
             {% else %}
-            <div class="text-3xl font-black text-steam-muted">—</div>
+            <div class="text-3xl font-black text-steam-muted">-</div>
             {% endif %}
             <div class="text-xs text-steam-muted uppercase tracking-widest mt-1">Avg Rating</div>
         </div>

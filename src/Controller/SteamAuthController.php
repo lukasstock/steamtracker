@@ -86,7 +86,7 @@ class SteamAuthController extends AbstractController
         }
 
         if ($isNewUser) {
-            // New user: redirect to loading page — it will fetch the import endpoint and
+            // New user: redirect to loading page - it will fetch the import endpoint and
             // then forward to the library once done.
             $response = $this->redirectToRoute('steam_auth_setup', ['steamId' => $steamId]);
         } else {
@@ -197,7 +197,7 @@ class SteamAuthController extends AbstractController
         try {
             $games = $this->steamApiService->getOwnedGames($steamId);
         } catch (\RuntimeException) {
-            return ['total' => 0, 'completed' => 0]; // Steam API unavailable — skip silently
+            return ['total' => 0, 'completed' => 0]; // Steam API unavailable - skip silently
         }
 
         // Pre-load all HLTB data we have cached for this game set

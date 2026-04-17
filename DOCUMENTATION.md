@@ -1,4 +1,4 @@
-# Steam Game Tracker — Technical Documentation
+# Steam Game Tracker - Technical Documentation
 
 ## Table of Contents
 
@@ -35,7 +35,7 @@ The app is live at **steamgametracker.com**.
 | ORM           | Doctrine ORM + Doctrine Migrations                      |
 | Database      | MySQL 8.0                                               |
 | Templates     | Twig                                                    |
-| CSS           | Tailwind CSS (Play CDN — no build step)                 |
+| CSS           | Tailwind CSS (Play CDN - no build step)                 |
 | HTTP client   | Guzzle 7                                                |
 | Image gen     | GD (PHP extension)                                      |
 | Web server    | nginx + php-fpm (Docker)                                |
@@ -48,13 +48,13 @@ The app is live at **steamgametracker.com**.
 ```
 src/
   Command/          Console commands (cache clear, Discord setup)
-  Controller/       HTTP controllers — one concern per file
+  Controller/       HTTP controllers - one concern per file
   Entity/           Doctrine entities
   Enum/             PHP 8.1+ backed enums
   EventListener/    Kernel event listeners (security headers, Discord queue)
   Handler/          Discord slash command handlers
   Repository/       Custom Doctrine query methods
-  Service/          Business logic — Steam API, badges, OG image, etc.
+  Service/          Business logic - Steam API, badges, OG image, etc.
 
 templates/
   auth/             Login, invite, setup pages
@@ -79,13 +79,13 @@ All secrets live in `.env.local` (not committed). The `.env` file contains safe 
 
 | Variable               | Description                                              |
 |------------------------|----------------------------------------------------------|
-| `APP_ENV`              | `dev` or `prod` — controls cache, cookie Secure flag, etc.|
+| `APP_ENV`              | `dev` or `prod` - controls cache, cookie Secure flag, etc.|
 | `APP_SECRET`           | Symfony CSRF / session secret                            |
 | `DATABASE_URL`         | Doctrine DSN (`mysql://user:pass@host:3306/db`)          |
 | `STEAM_API_KEY`        | Steam Web API key (get one at steamcommunity.com/dev)    |
 | `STEAM_ID`             | Owner's 64-bit Steam ID (used by the Discord bot command)|
 | `APP_PASSWORD`         | Password for the admin login page                        |
-| `FRIEND_INVITE_TOKEN`  | Secret token in invite links — leave blank to disable    |
+| `FRIEND_INVITE_TOKEN`  | Secret token in invite links - leave blank to disable    |
 | `DISCORD_PUBLIC_KEY`   | Discord application public key                           |
 | `DISCORD_APP_ID`       | Discord application ID                                   |
 | `DISCORD_BOT_TOKEN`    | Discord bot token                                        |
@@ -144,7 +144,7 @@ Migrations live in `migrations/` and are managed by Doctrine Migrations.
 
 ## 7. Authentication Flow
 
-The app uses **Steam OpenID** for login — no passwords are stored.
+The app uses **Steam OpenID** for login - no passwords are stored.
 
 ```
 User clicks "Sign in with Steam"
@@ -159,15 +159,15 @@ User clicks "Sign in with Steam"
 
 **New user import:** After the first login, the user is sent to a loading screen (`/auth/steam/setup/{steamId}`) that calls `POST /auth/steam/import-games/{steamId}`. This auto-classifies played games as Playing or Completed based on HLTB data and sets them up in bulk.
 
-**Authorization model:** There are no server-side sessions. Every request that modifies data reads the `tracker_token` cookie and checks it matches `user_profile.user_token` for the requested Steam ID. This token is a UUIDv4 — effectively a bearer token stored in a cookie.
+**Authorization model:** There are no server-side sessions. Every request that modifies data reads the `tracker_token` cookie and checks it matches `user_profile.user_token` for the requested Steam ID. This token is a UUIDv4 - effectively a bearer token stored in a cookie.
 
-**Invite links:** `FRIEND_INVITE_TOKEN` is a shared secret embedded in a URL (`/auth/invite/{token}`). Anyone with the link can register a new tracker account without going through the full Steam OpenID flow — useful for adding friends manually.
+**Invite links:** `FRIEND_INVITE_TOKEN` is a shared secret embedded in a URL (`/auth/invite/{token}`). Anyone with the link can register a new tracker account without going through the full Steam OpenID flow - useful for adding friends manually.
 
 ---
 
 ## 8. Routes & Controllers
 
-### `GameLibraryController` — Landing & library list
+### `GameLibraryController` - Landing & library list
 
 | Method | Route                                | Name                  | Description                                      |
 |--------|--------------------------------------|-----------------------|--------------------------------------------------|
@@ -175,9 +175,9 @@ User clicks "Sign in with Steam"
 | GET    | `/games`                             | `game_library_home`   | Same as above                                    |
 | POST   | `/games/view`                        | `game_library_view`   | Look up a Steam ID and redirect to their library |
 | GET    | `/games/{steamId}`                   | `game_library`        | Main library page with all games                 |
-| POST   | `/games/{steamId}/{appId}/update`    | `game_update`         | AJAX — save status, rating, notes, spotlight     |
+| POST   | `/games/{steamId}/{appId}/update`    | `game_update`         | AJAX - save status, rating, notes, spotlight     |
 
-### `GameDetailController` — Per-game detail & data endpoints
+### `GameDetailController` - Per-game detail & data endpoints
 
 | Method | Route                                      | Name                  | Description                                      |
 |--------|--------------------------------------------|-----------------------|--------------------------------------------------|
@@ -186,21 +186,21 @@ User clicks "Sign in with Steam"
 | GET    | `/games/{steamId}/{appId}/hltb`            | `game_hltb`           | Fetch/cache HLTB hours for a game (AJAX)         |
 | GET    | `/games/{steamId}/{appId}/achievements`    | `game_achievements`   | Fetch/cache achievement data for a game (AJAX)   |
 
-### `GameStatsController` — Stats & OG image
+### `GameStatsController` - Stats & OG image
 
 | Method | Route                          | Name             | Description                                      |
 |--------|--------------------------------|------------------|--------------------------------------------------|
 | GET    | `/games/{steamId}/stats`       | `game_stats`     | Stats dashboard (playtime, ratings, badges, etc.)|
 | GET    | `/games/{steamId}/og-image`    | `game_og_image`  | Generates a 1200×630 PNG for Open Graph embeds   |
 
-### `CompareController` — Friend comparison
+### `CompareController` - Friend comparison
 
 | Method | Route                                               | Name                  | Description                                      |
 |--------|-----------------------------------------------------|-----------------------|--------------------------------------------------|
-| GET    | `/games/{steamId}/compare`                          | `game_compare_pick`   | Friend picker — lists friends with/without tracker|
+| GET    | `/games/{steamId}/compare`                          | `game_compare_pick`   | Friend picker - lists friends with/without tracker|
 | GET    | `/games/{steamId}/compare/{friendSteamId}`          | `game_compare`        | Side-by-side library comparison                  |
 
-### `FeedController` — Activity feed
+### `FeedController` - Activity feed
 
 | Method | Route                          | Name        | Description                  |
 |--------|--------------------------------|-------------|------------------------------|
@@ -283,7 +283,7 @@ Results are cached in the `hltb_cache` database table (not the Symfony cache) wi
 
 ### `OgImageService`
 
-Generates the 1200×630 Open Graph preview image returned by `/games/{steamId}/og-image`. Uses PHP's GD extension to draw directly onto a canvas — no external dependencies.
+Generates the 1200×630 Open Graph preview image returned by `/games/{steamId}/og-image`. Uses PHP's GD extension to draw directly onto a canvas - no external dependencies.
 
 **Layout:** Left panel (730px) shows the GAME TRACKR logo, player avatar, player name, a "Top X% of all Steam users" badge, completion rate, and a 2×2 stats grid. Right panel (470px) shows three game cover images stacked vertically (spotlight games first, then most-played).
 
@@ -295,7 +295,7 @@ Fonts used: DejaVu Sans (ships in the Docker image at `/usr/share/fonts/truetype
 
 ### `BadgeService`
 
-Computes and ranks achievement badges based on a user's library state. Takes an array of `GameCompletion` entities, total hours, and game count as input — no database calls.
+Computes and ranks achievement badges based on a user's library state. Takes an array of `GameCompletion` entities, total hours, and game count as input - no database calls.
 
 **Badge categories:** Completion, Playtime, Rating, Dropped, Library, Special
 
@@ -410,8 +410,8 @@ Each entry in `rare_achievements`:
 
 | Command                           | Description                                               |
 |-----------------------------------|-----------------------------------------------------------|
-| `app:cache:clear-achievements`    | Truncates the `achievement_cache` table — forces a full re-fetch on next page load |
-| `app:steam:find-game`             | Discord bot helper — looks up the owner's Steam games     |
+| `app:cache:clear-achievements`    | Truncates the `achievement_cache` table - forces a full re-fetch on next page load |
+| `app:steam:find-game`             | Discord bot helper - looks up the owner's Steam games     |
 | `discord:register-commands`       | Registers slash commands with the Discord API             |
 | `discord:send-message`            | Sends a one-off message to a Discord channel              |
 
@@ -435,10 +435,10 @@ Each entry in `rare_achievements`:
 | `Permissions-Policy`    | `camera=(), microphone=(), geolocation=()` | Disables unused browser APIs  |
 
 ### Input Validation
-- `status` — validated against the `GameStatus` enum via `tryFrom()`
-- `rating` — validated to integer range 1–5
-- `notes` — truncated to 2000 characters
-- `app_name` — truncated to 200 characters
+- `status` - validated against the `GameStatus` enum via `tryFrom()`
+- `rating` - validated to integer range 1–5
+- `notes` - truncated to 2000 characters
+- `app_name` - truncated to 200 characters
 - Route parameters `steamId` and `appId` are constrained by regex requirements (`\d{17}` and `\d+`)
 
 ### Output Escaping

@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Steam Game Tracker — Track, Rate & Conquer Your Steam Library{% endblock %}
+{% block title %}Steam Game Tracker - Track, Rate & Conquer Your Steam Library{% endblock %}
 
 {% block og_meta %}
 <meta property="og:site_name"   content="Steam Game Tracker">
 <meta property="og:type"        content="website">
-<meta property="og:title"       content="Steam Game Tracker — Track, Rate & Conquer Your Steam Library">
+<meta property="og:title"       content="Steam Game Tracker - Track, Rate & Conquer Your Steam Library">
 <meta property="og:description" content="Track every game, earn badges, compare with friends, and finally figure out what to play next.">
 <meta name="twitter:card"       content="summary_large_image">
 <meta name="description"        content="Track every game, earn badges, compare with friends, and finally figure out what to play next.">
@@ -56,7 +56,7 @@
     width: 100%;
     height: auto;
 }
-/* Placeholder — remove this block once you replace with <img> */
+/* Placeholder - remove this block once you replace with <img> */
 .screenshot-placeholder {
     aspect-ratio: 16/10;
     display: flex;
@@ -113,7 +113,7 @@
     line-height: 1.5;
 }
 .feature-list li::before {
-    content: "—";
+    content: "-";
     position: absolute;
     left: 0;
     color: rgba(26,159,255,0.5);
@@ -384,7 +384,7 @@
             <div class="feature-text">
                 <span class="feature-tag" style="color:#a4d007;">Badges</span>
                 <h2 class="feature-heading">Earn your gaming achievements</h2>
-                <p class="feature-body">19 badges across 6 categories reward your playtime, completion rate, and dedication. Climb through bronze, silver, gold, platinum — and the ultra-rare animated legendary tier.</p>
+                <p class="feature-body">19 badges across 6 categories reward your playtime, completion rate, and dedication. Climb through bronze, silver, gold, platinum - and the ultra-rare animated legendary tier.</p>
                 <ul class="feature-list">
                     <li>6 categories: Completion, Playtime, Rating, Dropped, Library, Special</li>
                     <li>5 tiers with a rainbow animated glow for legendary</li>
@@ -422,12 +422,12 @@
             <div class="feature-text">
                 <span class="feature-tag" style="color:#1a9fff;">Game Detail</span>
                 <h2 class="feature-heading">Deep dive into every game</h2>
-                <p class="feature-body">Every game gets its own page: achievements, playtime vs. How Long to Beat, personal notes, and which of your friends also own it — with their ratings and take.</p>
+                <p class="feature-body">Every game gets its own page: achievements, playtime vs. How Long to Beat, personal notes, and which of your friends also own it - with their ratings and take.</p>
                 <ul class="feature-list">
                     <li>Full achievement list with Unlocked / Locked filter tabs</li>
                     <li>Rare achievements (≤5% global unlock rate) get a pulsing amber glow</li>
                     <li>How Long to Beat data fetched and cached per game</li>
-                    <li>Friends who own this game — click to see their library entry</li>
+                    <li>Friends who own this game - click to see their library entry</li>
                 </ul>
             </div>
 
@@ -446,7 +446,7 @@
             <div class="feature-text">
                 <span class="feature-tag" style="background:linear-gradient(90deg,#1a9fff,#a4d007);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Stats</span>
                 <h2 class="feature-heading">Know your library inside out</h2>
-                <p class="feature-body">Your personal stats page breaks down everything — completion rate, average ratings, most played games, favourite picks, and exactly how many hours your backlog will cost you.</p>
+                <p class="feature-body">Your personal stats page breaks down everything - completion rate, average ratings, most played games, favourite picks, and exactly how many hours your backlog will cost you.</p>
                 <ul class="feature-list">
                     <li>Completion progress bar with stacked status breakdown</li>
                     <li>Ratings distribution and playtime insights</li>
@@ -484,7 +484,7 @@
             <div class="feature-text">
                 <span class="feature-tag" style="color:#c084fc;">Compare</span>
                 <h2 class="feature-heading">Stack up against your friends</h2>
-                <p class="feature-body">Pick a Steam friend and see how your libraries compare — shared games, different opinions, and badges side by side. Great for settling game night debates.</p>
+                <p class="feature-body">Pick a Steam friend and see how your libraries compare - shared games, different opinions, and badges side by side. Great for settling game night debates.</p>
                 <ul class="feature-list">
                     <li>Side-by-side status and rating comparison for shared games</li>
                     <li>Badge comparison with shared badge highlights</li>
@@ -569,18 +569,18 @@
             {% set faqs = [
                 {
                     q: 'Why are my achievements not showing?',
-                    a: 'Steam achievement data requires your profile to be fully public — not just the profile itself, but specifically <strong>Game Details</strong>. Go to <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" style="color:#1a9fff;">Steam Privacy Settings</a>, set <em>Game Details</em> to <em>Public</em>, then click the sync button on the game\'s detail page to refresh.<br><br>Not sure if your profile is actually public? Paste your Steam ID into <a href="https://steamdb.info/calculator/" target="_blank" rel="noopener" style="color:#1a9fff;">steamdb.info/calculator</a> — if it can see your games and hours, so can we.'
+                    a: 'Steam achievement data requires your profile to be fully public - not just the profile itself, but specifically <strong>Game Details</strong>. Go to <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" style="color:#1a9fff;">Steam Privacy Settings</a>, set <em>Game Details</em> to <em>Public</em>, then click the sync button on the game\'s detail page to refresh.<br><br>Not sure if your profile is actually public? Paste your Steam ID into <a href="https://steamdb.info/calculator/" target="_blank" rel="noopener" style="color:#1a9fff;">steamdb.info/calculator</a> - if it can see your games and hours, so can we.'
                 },
                 {
-                    q: 'My library is empty — where are my games?',
+                    q: 'My library is empty - where are my games?',
                     a: 'Steam only exposes owned games if your <strong>Game Details</strong> privacy setting is set to <em>Public</em>. Check your <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" style="color:#1a9fff;">Steam Privacy Settings</a> and make sure it is not set to <em>Friends Only</em> or <em>Private</em>.<br><br>A quick way to verify: open <a href="https://steamdb.info/calculator/" target="_blank" rel="noopener" style="color:#1a9fff;">steamdb.info/calculator</a> and enter your Steam ID. If SteamDB can\'t see your library either, your profile is not yet public.'
                 },
                 {
                     q: 'Can my friends see my library without an account?',
-                    a: 'Yes — anyone can browse your library at <code style="background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:4px;font-size:13px;">steamgametracker.com/games/{your Steam ID}</code>. No login is needed to view. Only you can edit your own data.'
+                    a: 'Yes - anyone can browse your library at <code style="background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:4px;font-size:13px;">steamgametracker.com/games/{your Steam ID}</code>. No login is needed to view. Only you can edit your own data.'
                 },
                 {
-                    q: 'I can\'t find my friend in the compare picker — why?',
+                    q: 'I can\'t find my friend in the compare picker - why?',
                     a: 'The compare feature only lists Steam friends who have already set up their own Steam Game Tracker account. If your friend is listed under <em>Not on Steam Game Tracker</em>, use the <strong>Invite</strong> button next to their name to copy a message you can send them.'
                 },
                 {
@@ -596,8 +596,8 @@
                     a: 'HLTB data is fetched on demand the first time you open a game\'s detail page. If a game shows no time, open the detail page and it will be fetched and cached automatically. Some niche titles are simply not in the HLTB database, in which case no time will ever appear. This is sadly not in our control'
                 },
                 {
-                    q: 'The auto-import marked a game as Completed that I haven\'t finished — can I fix it?',
-                    a: 'Absolutely — the import is just a starting point. Click any game to open its panel and change the status to whatever feels right. Auto-import uses your Steam playtime vs. HLTB estimates, so it can be over-eager for long games you\'ve played a lot but never finished.'
+                    q: 'The auto-import marked a game as Completed that I haven\'t finished - can I fix it?',
+                    a: 'Absolutely - the import is just a starting point. Click any game to open its panel and change the status to whatever feels right. Auto-import uses your Steam playtime vs. HLTB estimates, so it can be over-eager for long games you\'ve played a lot but never finished.'
                 },
             ] %}
 

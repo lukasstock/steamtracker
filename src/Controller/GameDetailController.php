@@ -152,7 +152,7 @@ class GameDetailController extends AbstractController
         $cached ??= (new AchievementCache())->setSteamId($steamId)->setAppId($appId);
 
         if ($achievements === null) {
-            // API error — don't cache, let the client retry
+            // API error - don't cache, let the client retry
             return $this->json(['has_achievements' => null]);
         }
 

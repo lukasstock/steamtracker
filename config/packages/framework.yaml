@@ -2,7 +2,7 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
-    # Trust all proxy headers — covers ngrok, Cloudflare, nginx reverse-proxy, etc.
+    # Trust all proxy headers - covers ngrok, Cloudflare, nginx reverse-proxy, etc.
     trusted_proxies: '127.0.0.1,REMOTE_ADDR'
     trusted_headers:
         - 'x-forwarded-for'

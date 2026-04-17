@@ -46,7 +46,7 @@ class HltbService
                 return null;
             }
 
-            // Step 2: search — honeypot field is merged into the body AND sent as headers
+            // Step 2: search - honeypot field is merged into the body AND sent as headers
             $body = [
                 'searchType'    => 'games',
                 'searchTerms'   => array_values(array_filter(explode(' ', trim($gameName)))),

@@ -9,10 +9,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * Adds security-related HTTP headers to every main request response.
  *
- * X-Frame-Options        — prevents clickjacking by blocking cross-origin iframes
- * X-Content-Type-Options — stops browsers from MIME-sniffing response content
- * Referrer-Policy        — only sends the origin on cross-site requests, not the full URL
- * Permissions-Policy     — explicitly disables sensitive browser APIs we don't use
+ * X-Frame-Options        - prevents clickjacking by blocking cross-origin iframes
+ * X-Content-Type-Options - stops browsers from MIME-sniffing response content
+ * Referrer-Policy        - only sends the origin on cross-site requests, not the full URL
+ * Permissions-Policy     - explicitly disables sensitive browser APIs we don't use
  */
 #[AsEventListener(event: KernelEvents::RESPONSE)]
 class SecurityHeadersListener

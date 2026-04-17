@@ -35,7 +35,7 @@
     white-space: normal;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
-/* Caret — sits under the icon center (icon is 32px wide, left-anchored) */
+/* Caret - sits under the icon center (icon is 32px wide, left-anchored) */
 .ach-rare-tip::after {
     content: "";
     position: absolute;
@@ -346,7 +346,7 @@
         'playing':   '▶ Playing',
         'dropped':   '✕ Dropped',
         'on_hold':   '⏸ On Hold',
-        'unplayed':  '— Unplayed',
+        'unplayed':  '- Unplayed',
     } %}
     <div class="game-row rounded-xl border border-white/[0.06] transition-colors hover:border-white/20"
          style="background:rgba(255,255,255,0.02);"
@@ -387,7 +387,7 @@
                         <span class="text-yellow-400">{%- for i in 1..5 -%}{{ i <= game.a_rating ? '★' : '☆' }}{%- endfor -%}</span>
                         ·
                     {% endif %}
-                    {{ game.a_playtime_hrs > 0 ? game.a_playtime_hrs ~ 'h' : '—' }}
+                    {{ game.a_playtime_hrs > 0 ? game.a_playtime_hrs ~ 'h' : '-' }}
                 </div>
             </div>
 
@@ -403,7 +403,7 @@
                         <span class="text-yellow-400">{%- for i in 1..5 -%}{{ i <= game.b_rating ? '★' : '☆' }}{%- endfor -%}</span>
                         ·
                     {% endif %}
-                    {{ game.b_playtime_hrs > 0 ? game.b_playtime_hrs ~ 'h' : '—' }}
+                    {{ game.b_playtime_hrs > 0 ? game.b_playtime_hrs ~ 'h' : '-' }}
                 </div>
             </div>
 

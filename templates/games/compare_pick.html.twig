@@ -144,7 +144,7 @@ function filterFriends() {
 }
 
 function copyInviteLink(btn) {
-    const text = `Steam Game Tracker — track and manage your Steam backlog, and compare games with friends.\nCheck out ${INVITER_NAME}'s library and set up your own: ${INVITER_URL}`;
+    const text = `Steam Game Tracker - track and manage your Steam backlog, and compare games with friends.\nCheck out ${INVITER_NAME}'s library and set up your own: ${INVITER_URL}`;
     navigator.clipboard.writeText(text).then(() => {
         const orig = btn.textContent;
         btn.textContent = '✓ Copied!';

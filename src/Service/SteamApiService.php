@@ -10,12 +10,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class SteamApiService
 {
-    // Cache TTLs — kept as named constants so they're easy to find and adjust
-    private const TTL_NOW_PLAYING     = 60;       // 1 minute — keep current game fresh
+    // Cache TTLs - kept as named constants so they're easy to find and adjust
+    private const TTL_NOW_PLAYING     = 60;       // 1 minute - keep current game fresh
     private const TTL_OWNED_GAMES     = 3600;     // 1 hour
     private const TTL_FRIENDS         = 900;      // 15 minutes
-    private const TTL_GLOBAL_ACH_PCT  = 604800;   // 7 days   — percentages change slowly
-    private const TTL_GAME_SCHEMA     = 2592000;  // 30 days  — achievement metadata is stable
+    private const TTL_GLOBAL_ACH_PCT  = 604800;   // 7 days   - percentages change slowly
+    private const TTL_GAME_SCHEMA     = 2592000;  // 30 days  - achievement metadata is stable
     private const TTL_HEADER_IMAGE    = 2592000;  // 30 days
 
     private Client $client;

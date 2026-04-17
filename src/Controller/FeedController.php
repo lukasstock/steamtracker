@@ -25,7 +25,7 @@ class FeedController extends AbstractController
     {
         $token = $this->userTokenService->getToken($request);
 
-        // Feed requires a logged-in user — we need their Steam ID to fetch friends
+        // Feed requires a logged-in user - we need their Steam ID to fetch friends
         if ($token === null) {
             return $this->render('feed/index.html.twig', [
                 'entries'       => [],
@@ -47,7 +47,7 @@ class FeedController extends AbstractController
 
         $mySteamId = $profile->getSteamId();
 
-        // Fetch friend list — null means private
+        // Fetch friend list - null means private
         $friendsPrivate = false;
         $allowedSteamIds = [$mySteamId];
         try {
@@ -58,7 +58,7 @@ class FeedController extends AbstractController
                 $allowedSteamIds = array_merge($allowedSteamIds, $friends);
             }
         } catch (\RuntimeException) {
-            // Steam unavailable — fall back to own activity only
+            // Steam unavailable - fall back to own activity only
         }
 
         $entries = $this->activityLogRepository->findRecentForSteamIds($allowedSteamIds, 60);

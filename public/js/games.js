@@ -136,7 +136,7 @@ const BADGE_CONFIG = {
 };
 
 function openModal(appId, btn) {
-    // Spotlight cards are not .game-card — fall back to the library card by appId
+    // Spotlight cards are not .game-card - fall back to the library card by appId
     const card  = btn.closest('.game-card') || document.querySelector(`.game-card[data-appid="${appId}"]`);
     modalAppId  = appId;
     modalStatus = card.dataset.status;
@@ -419,7 +419,7 @@ async function loadHltbIntoModal(card, appId, gameName) {
         card.dataset.hltb = val;
         el.textContent = hltbLabel(val);
     } else {
-        el.textContent = '—';
+        el.textContent = '-';
     }
 }
 
@@ -456,7 +456,7 @@ async function loadAchievementsIntoModal(card, appId) {
             unlocked, total,
             percent: Math.round((unlocked / total) * 1000) / 10,
             perfect: unlocked === total,
-            rare: [],  // rare data not stored in card attributes — fetch for full detail
+            rare: [],  // rare data not stored in card attributes - fetch for full detail
         });
         // Still fetch in background for rare achievements if needed
         const fresh = await fetchAchievements(STEAM_ID, appId);
@@ -466,7 +466,7 @@ async function loadAchievementsIntoModal(card, appId) {
         return;
     }
 
-    // No cached data — show loading state and fetch
+    // No cached data - show loading state and fetch
     section.classList.remove('hidden');
     content.innerHTML = '<span style="font-size:0.75rem;color:#8f98a0;">Loading…</span>';
 
@@ -516,7 +516,7 @@ function renderAchievementsInModal(section, content, card, appId, data) {
                 ? `<img src="${r.icon}" style="width:40px;height:40px;border-radius:6px;display:block;" alt="">`
                 : `<div style="width:40px;height:40px;border-radius:6px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🏅</div>`;
             html += `
-                <div title="${r.displayName} — ${r.globalPercent}% of players have this"
+                <div title="${r.displayName} - ${r.globalPercent}% of players have this"
                      style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:0;cursor:default;">
                     ${iconHtml}
                     <span style="font-size:0.6rem;color:#c6d4df;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3;width:100%;">${r.displayName}</span>
@@ -578,7 +578,7 @@ async function autoCompleteGame(card, appId) {
         applyCardUpdate(appId, data);
         updateStats();
     } catch {
-        // Silent — not critical if this fails
+        // Silent - not critical if this fails
     }
 }
 
@@ -605,7 +605,7 @@ async function startAchievementSync() {
     btn.onmouseover  = null;
     btn.onmouseout   = null;
 
-    // Played games first — more likely to have achievements
+    // Played games first - more likely to have achievements
     unfetched.sort((a, b) => parseInt(b.dataset.playtime) - parseInt(a.dataset.playtime));
 
     const total     = unfetched.length;
@@ -806,7 +806,7 @@ function buildSurpriseCards(picks) {
             </div>
         `;
 
-        // Populate HLTB — use cached value or fetch now
+        // Populate HLTB - use cached value or fetch now
         const hltbEl = sc.querySelector(`#${hltbElId}`);
         if (hltbRaw && hltbRaw !== '') {
             hltbEl.textContent = hltbRaw === 'n/a' ? '' : `~${parseInt(hltbRaw)} hrs to beat`;

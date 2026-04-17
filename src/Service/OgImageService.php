@@ -178,7 +178,7 @@ class OgImageService
                     imagedestroy($avatarImg);
                 }
             } catch (\Throwable) {
-                // Non-fatal — image just won't appear
+                // Non-fatal - image just won't appear
             }
         }
 
@@ -197,7 +197,7 @@ class OgImageService
         mixed $img, array $c, array $stats, string $steamId, string $playerName, int $nameX, int $nameY
     ): void {
         // Composite score: 50% completion rank + 50% playtime rank
-        // Calibrated to Steam's distribution — see inline comments
+        // Calibrated to Steam's distribution - see inline comments
         $pct        = $stats['pct'];
         $totalHours = $stats['totalHours'];
 
@@ -321,7 +321,7 @@ class OgImageService
                     imagedestroy($coverImg);
                 }
             } catch (\Throwable) {
-                // Non-fatal — cover slot stays dark
+                // Non-fatal - cover slot stays dark
             }
         }
     }
