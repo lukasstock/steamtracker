@@ -52,6 +52,11 @@ class GameDetailController extends AbstractController
         $token     = $this->userTokenService->getToken($request);
         $isOwner   = $token !== null && $token === $userToken;
 
+        $visitorProfile = $token !== null && !$isOwner
+            ? $this->userProfileRepository->findOneBy(['userToken' => $token])
+            : null;
+        $visitorSteamId = $visitorProfile?->getSteamId() ?? $steamId;
+
         try { $player = $this->steamApiService->getPlayerSummary($steamId); }
         catch (\RuntimeException) { $player = []; }
 
@@ -90,7 +95,8 @@ class GameDetailController extends AbstractController
             'achievements'     => $achievements,
             'has_achievements' => $hasAchievements,
             'activity_log'     => $activityLog,
-            'friends_who_own'  => $this->loadFriendsWhoOwnGame($steamId, $appId),
+            'visitor_steam_id' => $visitorSteamId,
+            'friends_who_own'  => $this->loadFriendsWhoOwnGame($visitorSteamId, $appId),
         ]);
     }
 
