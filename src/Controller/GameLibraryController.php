@@ -53,7 +53,6 @@ class GameLibraryController extends AbstractController
 
         return $this->render('games/landing.html.twig', [
             'error'               => null,
-            'friend_invite_token' => $this->friendInviteToken,
             'scroll_to_faq'       => true,
             'logged_in_steam_id'  => $steamId,
         ]);
@@ -73,7 +72,6 @@ class GameLibraryController extends AbstractController
 
         return $this->render('games/landing.html.twig', [
             'error'               => null,
-            'friend_invite_token' => $this->friendInviteToken,
         ]);
     }
 
@@ -84,7 +82,6 @@ class GameLibraryController extends AbstractController
         if ($steamInput === '') {
             return $this->render('games/landing.html.twig', [
                 'error'               => null,
-                'friend_invite_token' => $this->friendInviteToken,
             ]);
         }
 
@@ -288,7 +285,6 @@ class GameLibraryController extends AbstractController
     {
         return $this->render('games/landing.html.twig', [
             'error'               => $error,
-            'friend_invite_token' => $this->friendInviteToken,
         ]);
     }
 }
