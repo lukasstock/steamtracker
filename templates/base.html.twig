@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Steam Game Tracker{% endblock %}</title>
+    {% block og_meta %}
+    <meta property="og:site_name"   content="Steam Game Tracker">
+    <meta property="og:type"        content="website">
+    <meta property="og:title"       content="Steam Game Tracker">
+    <meta property="og:description" content="Track your Steam library, rate games, write notes, and manage your backlog.">
+    <meta name="twitter:card"       content="summary">
+    <meta name="description"        content="Track your Steam library, rate games, write notes, and manage your backlog.">
+    {% endblock %}
+    <link rel="icon" type="image/png" href="/images/trackerLogo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                },
+                extend: {
+                    colors: {
+                        steam: {
+                            dark:  '#1b2838',
+                            mid:   '#2a475e',
+                            light: '#c6d4df',
+                            blue:  '#1a9fff',
+                            muted: '#8f98a0',
+                            green: '#a4d007',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/css/base.css">
+    {% block head %}{% endblock %}
+</head>
+<body class="text-steam-light min-h-screen">
+    {% block body %}{% endblock %}
+    {% block faq_btn %}
+    <a href="/faq"
+       style="position:fixed;bottom:24px;left:24px;z-index:200;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.04em;color:#c6d4df;background:rgba(14,22,32,0.9);border:1px solid rgba(255,255,255,0.12);text-decoration:none;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.4);transition:color 0.2s,border-color 0.2s;"
+       onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.3)'"
+       onmouseout="this.style.color='#c6d4df';this.style.borderColor='rgba(255,255,255,0.12)'">
+        FAQ
+    </a>
+    {% endblock %}
+</body>
+</html>

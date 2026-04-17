@@ -1,0 +1,910 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Steam Game Tracker{% endblock %}
+
+{% block og_meta %}
+{% set og_title = (player.personaname is defined ? player.personaname : 'A Gamer') ~ "'s Steam Library · Steam Game Tracker" %}
+{% set og_desc  = counts.completed ~ ' completed · ' ~ counts.playing ~ ' playing · ' ~ total ~ ' games tracked' %}
+{% set og_image = app.request.schemeAndHttpHost ~ '/games/' ~ steam_id ~ '/og-image' %}
+<meta property="og:site_name"    content="Steam Game Tracker">
+<meta property="og:type"         content="website">
+<meta property="og:url"          content="{{ app.request.uri }}">
+<meta property="og:title"        content="{{ og_title }}">
+<meta property="og:description"  content="{{ og_desc }}">
+<meta property="og:image"        content="{{ og_image }}">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_desc }}">
+<meta name="twitter:image"       content="{{ og_image }}">
+<meta name="description"         content="{{ og_desc }}">
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/css/games.css">
+<style>
+@keyframes legendary-glow {
+    0%   { box-shadow: 0 0 8px rgba(255,0,128,0.35);  border-color: rgba(255,0,128,0.4); }
+    25%  { box-shadow: 0 0 8px rgba(255,165,0,0.35);  border-color: rgba(255,165,0,0.4); }
+    50%  { box-shadow: 0 0 8px rgba(0,200,255,0.35);  border-color: rgba(0,200,255,0.4); }
+    75%  { box-shadow: 0 0 8px rgba(160,0,255,0.35);  border-color: rgba(160,0,255,0.4); }
+    100% { box-shadow: 0 0 8px rgba(255,0,128,0.35);  border-color: rgba(255,0,128,0.4); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+    {# ── Header ── #}
+    <div class="flex items-start justify-between mb-10">
+        <div>
+            {% if player.avatarmedium is defined %}
+            <div class="flex items-center gap-3 mb-3">
+                <img src="{{ player.avatarmedium }}"
+                     alt="{{ player.personaname }}"
+                     class="rounded-full flex-shrink-0"
+                     style="width:40px;height:40px;border:2px solid rgba(255,255,255,0.1);">
+                <span class="text-white font-semibold text-sm">{{ player.personaname }}</span>
+            </div>
+            {% endif %}
+            <h1 class="text-5xl font-black tracking-tight text-white leading-none">
+                GAME
+                <span style="background:linear-gradient(90deg,#1a9fff,#a4d007);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                    LIBRARY
+                </span>
+            </h1>
+            <p class="text-steam-muted text-sm mt-2">Track your completion progress</p>
+        </div>
+        <div class="flex items-center gap-2 mt-1">
+            <a href="{{ path('activity_feed') }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+               style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+               onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Feed
+            </a>
+            <a href="{{ path('game_stats', {steamId: steam_id}) }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+               style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+               onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Stats
+            </a>
+            <a href="{{ path('game_badges', {steamId: steam_id}) }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+               style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+               onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                </svg>
+                Badges
+            </a>
+            <a href="{{ path('game_compare_pick', {steamId: steam_id}) }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+               style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+               onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Compare with friends
+            </a>
+            <button id="share-btn"
+                    onclick="copyLibraryLink(this)"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+                    style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                Share
+            </button>
+            {% if is_owner %}
+            <button id="ach-sync-btn"
+                    onclick="startAchievementSync()"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+                    style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                🏆 Sync Achievements
+            </button>
+            <a href="/logout"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-colors"
+               style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25);color:#f87171;"
+               onmouseover="this.style.background='rgba(239,68,68,0.18)'"
+               onmouseout="this.style.background='rgba(239,68,68,0.08)'">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Sign out
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── Now Playing ── #}
+    {% if now_playing %}
+    <div class="flex items-center gap-4 px-5 py-3.5 rounded-xl border mb-6"
+         style="background:rgba(26,159,255,0.06); border-color:rgba(26,159,255,0.2);">
+        <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ now_playing.appid }}/header.jpg"
+             alt="{{ now_playing.name }}"
+             class="rounded-lg flex-shrink-0 object-cover"
+             style="width:94px; height:44px;"
+             onerror="this.style.display='none'">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 text-xs text-steam-muted uppercase tracking-widest mb-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-steam-green inline-block animate-pulse"></span>
+                Now Playing
+            </div>
+            <div class="text-white font-bold truncate">{{ now_playing.name }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── First-login import banner ── #}
+    {% if imported > 0 %}
+    <div class="rounded-xl px-5 py-4 mb-6 border text-sm flex items-start gap-3"
+         style="background:rgba(26,159,255,0.07);border-color:rgba(26,159,255,0.2);">
+        <span class="text-xl leading-none mt-0.5">🎮</span>
+        <div>
+            <span class="font-semibold text-white">Welcome to Steam Game Tracker!</span>
+            <span class="text-steam-light"> We imported <strong>{{ imported }}</strong> games you've played.
+            {% if auto_completed > 0 %}
+                <strong>{{ auto_completed }}</strong> were marked <strong>Completed</strong> based on your playtime matching HowLongToBeat data,
+                and <strong>{{ imported - auto_completed }}</strong> were marked <strong>Playing</strong>.
+            {% else %}
+                All were marked <strong>Playing</strong> — correct any you've finished, or hit <strong>Sync Achievements</strong> to auto-complete games you've 100%'d.
+            {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Stats ── #}
+    {% set pct = counts.completed > 0 ? ((counts.completed / total) * 100)|round(1) : 0 %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(164,208,7,0.07);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(164,208,7,0.6),transparent)"></div>
+            <div class="text-4xl font-black text-steam-green" id="stat-completed">{{ counts.completed }}</div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Completed</div>
+        </div>
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(26,159,255,0.07);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(26,159,255,0.6),transparent)"></div>
+            <div class="text-4xl font-black text-steam-blue" id="stat-playing">{{ counts.playing }}</div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Playing</div>
+        </div>
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(255,255,255,0.04);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)"></div>
+            <div class="text-4xl font-black text-white" id="stat-backlog">{{ counts.unplayed + counts.on_hold }}</div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Backlog</div>
+        </div>
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(255,255,255,0.03);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)"></div>
+            <div class="text-4xl font-black text-steam-muted" id="stat-total">{{ total }}</div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Total</div>
+        </div>
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(255,255,255,0.03);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)"></div>
+            <div class="text-4xl font-black text-steam-muted">{{ total_hours|number_format(0) }}<span class="text-2xl font-bold">h</span></div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Playtime</div>
+        </div>
+        <div class="rounded-xl p-5 border border-white/[0.06] relative overflow-hidden" style="background:rgba(251,191,36,0.07);">
+            <div class="absolute top-0 left-4 right-4 h-px" style="background:linear-gradient(90deg,transparent,rgba(251,191,36,0.5),transparent)"></div>
+            <div class="text-4xl font-black" style="color:#fbbf24;" id="stat-perfect">{{ perfect_count }}</div>
+            <div class="text-steam-muted text-xs uppercase tracking-widest mt-1.5">Perfect Games</div>
+        </div>
+    </div>
+
+    {# Progress bar #}
+    <div class="rounded-xl px-5 py-4 mb-8 border border-white/[0.06]" style="background:rgba(255,255,255,0.04);">
+        <div class="flex justify-between text-xs mb-2.5">
+            <span class="text-steam-muted font-medium">Completion Progress</span>
+            <span class="text-white font-bold" id="stat-pct">{{ pct }}%</span>
+        </div>
+        <div class="w-full rounded-full h-2.5 overflow-hidden" style="background:rgba(0,0,0,0.4);">
+            <div id="progress-bar" class="h-2.5 rounded-full transition-all duration-700" style="width:{{ pct }}%"></div>
+        </div>
+    </div>
+
+    {# ── Badge strip ── #}
+    {% if top_badges|length > 0 %}
+    <div class="flex items-center gap-2 mb-8 flex-wrap">
+        {% for badge in top_badges %}
+        {% if badge.tier == 'bronze' %}{% set bc = '#cd7f32' %}{% set ba = 'rgba(205,127,50,0.12)' %}
+        {% elseif badge.tier == 'silver' %}{% set bc = '#adb5bd' %}{% set ba = 'rgba(173,181,189,0.12)' %}
+        {% elseif badge.tier == 'gold' %}{% set bc = '#fbbf24' %}{% set ba = 'rgba(251,191,36,0.12)' %}
+        {% elseif badge.tier == 'platinum' %}{% set bc = '#e879f9' %}{% set ba = 'rgba(232,121,249,0.12)' %}
+        {% else %}{% set bc = '#ff0080' %}{% set ba = 'rgba(255,0,128,0.1)' %}
+        {% endif %}
+        <div class="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border cursor-default select-none"
+             style="background:{{ ba }};border-color:{{ bc }}44;{% if badge.tier == 'legendary' %}animation:legendary-glow 3s ease-in-out infinite;{% else %}box-shadow:0 0 8px {{ bc }}18;{% endif %}">
+            <span style="{% if badge.tier == 'legendary' %}filter:none;{% endif %}">{{ badge.icon }}</span>
+            <span style="color:{% if badge.tier == 'legendary' %}#ff88cc{% else %}{{ bc }}{% endif %};">{{ badge.name }}</span>
+            {# Tooltip #}
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 whitespace-nowrap">
+                <div class="text-xs text-white px-2 py-1 rounded-lg border border-white/10"
+                     style="background:rgba(15,20,30,0.95);">{{ badge.description }}</div>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{{ path('game_badges', {steamId: steam_id}) }}"
+           class="ml-1 text-xs text-steam-muted hover:text-white transition-colors whitespace-nowrap">
+            {{ earned_badge_count }}/{{ total_badge_count }} badges →
+        </a>
+    </div>
+    {% endif %}
+
+    {# ── Spotlight ── #}
+    {% set spotlight_games = games|filter(g => g.is_spotlight) %}
+    {% if spotlight_games|length > 0 or is_owner %}
+    <div id="spotlight-section" class="mb-10">
+        <div class="flex items-center gap-3 mb-5">
+            <span class="text-xs uppercase tracking-widest font-bold" style="color:#fbbf24;letter-spacing:0.12em;">♦ Spotlight</span>
+            <div class="flex-1 h-px" style="background:linear-gradient(90deg,rgba(251,191,36,0.35),transparent)"></div>
+        </div>
+        <div id="spotlight-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {% for game in spotlight_games %}
+            <div class="spotlight-card group relative rounded-xl overflow-hidden cursor-pointer"
+                 data-appid="{{ game.appid }}"
+                 data-status="{{ game.status }}"
+                 data-rating="{{ game.rating ?? 0 }}"
+                 data-notes="{{ game.notes|e('html_attr') }}"
+                 data-spotlight="1"
+                 data-notes-public="{{ game.notes_public ? '1' : '0' }}"
+                 data-app-name="{{ game.name|e('html_attr') }}">
+                <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ game.appid }}/header.jpg"
+                     alt="{{ game.name }}"
+                     class="w-full block"
+                     onerror="handleImageError(this, {{ game.appid }})">
+                <div class="absolute inset-0 pointer-events-none"
+                     style="background:linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.95) 100%)"></div>
+                <div class="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-8">
+                    <div class="text-white font-bold text-sm leading-tight mb-1">{{ game.name }}</div>
+                    {% if game.rating %}
+                    <div class="text-yellow-400 text-xs tracking-tighter mb-1.5">
+                        {%- for i in 1..5 -%}{{ i <= game.rating ? '★' : '☆' }}{%- endfor -%}
+                    </div>
+                    {% endif %}
+                    {% if game.notes and (game.notes_public or is_owner) %}
+                    <div class="text-steam-muted text-xs leading-snug line-clamp-2">{{ game.notes }}</div>
+                    {% endif %}
+                </div>
+                {# Hover overlay with Edit + Details #}
+                <div class="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto"
+                     style="background:rgba(0,0,0,0.65);">
+                    {% if is_owner %}
+                    <button onclick="openModal({{ game.appid }}, this); event.stopPropagation();"
+                            class="px-3 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors active:scale-95">
+                        ✏ Edit
+                    </button>
+                    {% endif %}
+                    <a href="{{ path('game_detail', {steamId: steam_id, appId: game.appid}) }}"
+                       class="px-3 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
+                       onclick="event.stopPropagation()">
+                        Details →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if spotlight_games|length == 0 and is_owner %}
+        <div id="spotlight-empty" class="rounded-xl border border-dashed py-10 text-center text-sm"
+             style="border-color:rgba(251,191,36,0.2);background:rgba(251,191,36,0.03);color:#8f98a0;">
+            Edit any game and tap <span style="color:#fbbf24;">♦ Add to Spotlight</span> to feature it here
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Spotlight remove zone (appears only while dragging a spotlight card) ── #}
+    {% if is_owner %}
+    <div id="spotlight-remove-zone"
+         class="hidden mb-6 rounded-xl border border-dashed py-4 text-center text-xs font-semibold transition-colors select-none"
+         style="border-color:rgba(248,113,113,0.25);background:rgba(248,113,113,0.04);color:rgba(248,113,113,0.6);">
+        ✕ Drop here to remove from Spotlight
+    </div>
+    {% endif %}
+
+    {# ── Controls ── #}
+    <div class="flex flex-col sm:flex-row gap-3 mb-8">
+        <div class="flex flex-wrap gap-2">
+            <button onclick="setFilter('all')" id="filter-all"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-steam-blue text-white">
+                All <span id="count-all" class="ml-1 opacity-60">{{ total }}</span>
+            </button>
+            <button onclick="setFilter('playing')" id="filter-playing"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold text-steam-light border border-white/10 hover:bg-steam-blue hover:border-steam-blue hover:text-white"
+                style="background:rgba(255,255,255,0.05);">
+                Playing <span id="count-playing" class="ml-1 opacity-60">{{ counts.playing }}</span>
+            </button>
+            <button onclick="setFilter('completed')" id="filter-completed"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold text-steam-light border border-white/10 hover:bg-steam-blue hover:border-steam-blue hover:text-white"
+                style="background:rgba(255,255,255,0.05);">
+                Completed <span id="count-completed" class="ml-1 opacity-60">{{ counts.completed }}</span>
+            </button>
+            <button onclick="setFilter('backlog')" id="filter-backlog"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold text-steam-light border border-white/10 hover:bg-steam-blue hover:border-steam-blue hover:text-white"
+                style="background:rgba(255,255,255,0.05);">
+                Backlog <span id="count-backlog" class="ml-1 opacity-60">{{ counts.unplayed + counts.on_hold }}</span>
+            </button>
+            <button onclick="setFilter('dropped')" id="filter-dropped"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold text-steam-light border border-white/10 hover:bg-steam-blue hover:border-steam-blue hover:text-white"
+                style="background:rgba(255,255,255,0.05);">
+                Dropped <span id="count-dropped" class="ml-1 opacity-60">{{ counts.dropped }}</span>
+            </button>
+            <button onclick="setFilter('perfect')" id="filter-perfect"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold text-steam-light border border-white/10 hover:bg-steam-blue hover:border-steam-blue hover:text-white"
+                style="background:rgba(255,255,255,0.05);"
+                title="Games with 100% achievements (loaded so far)">
+                🏆 Perfect <span id="count-perfect" class="ml-1 opacity-60">{{ perfect_count }}</span>
+            </button>
+        </div>
+        <input type="text" id="search" placeholder="Search games…" oninput="applyFilters()"
+               class="flex-1 text-steam-light placeholder-steam-muted rounded-lg px-4 py-2 text-sm border border-white/10 outline-none focus:border-steam-blue transition-colors"
+               style="background:rgba(255,255,255,0.05);">
+        <select id="sort" onchange="sortGames(this.value)"
+                class="text-steam-light rounded-lg px-4 py-2 text-sm border border-white/10 outline-none focus:border-steam-blue cursor-pointer"
+                style="background:rgba(255,255,255,0.05);">
+            <option value="name">Name (A–Z)</option>
+            <option value="most-stars">Stars (5-1)</option>
+            <option value="least-stars">Stars (1-5)</option>
+            <option value="most-played">Most Played</option>
+            <option value="recently-played">Recently Played</option>
+            <option value="least-played">Least Played</option>
+            <option value="notes-available">Notes</option>
+        </select>
+    </div>
+
+    {# ── Surprise Me ── #}
+    <div class="rounded-xl mb-8 border border-white/[0.06]" style="background:rgba(255,255,255,0.03);">
+
+        {# Main controls row #}
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 px-4 py-3.5">
+
+            <button id="surprise-btn" onclick="surpriseMe()"
+                    class="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-sm font-bold text-white flex-shrink-0 transition-opacity hover:opacity-80 active:scale-95"
+                    style="background:linear-gradient(135deg,#1a9fff 0%,#a4d007 100%);">
+                🎲 Surprise Me
+            </button>
+
+            <label class="flex items-center gap-2 text-sm text-steam-muted cursor-pointer select-none flex-shrink-0">
+                <input type="checkbox" id="surprise-include-completed" style="accent-color:#1a9fff;width:14px;height:14px;">
+                Include already completed games
+            </label>
+
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <input type="range" id="surprise-hours-slider"
+                       min="0" max="100" step="2" value="0"
+                       oninput="updateSliderLabel(this.value)"
+                       class="flex-1 min-w-0"
+                       style="accent-color:#1a9fff;">
+                <span id="surprise-hours-label" class="text-xs font-semibold text-white whitespace-nowrap"
+                      style="min-width:90px;text-align:right;">Unplayed only</span>
+            </div>
+
+            <label class="flex items-center gap-2 text-sm text-steam-muted cursor-pointer select-none flex-shrink-0">
+                <input type="checkbox" id="surprise-hltb-enabled" style="accent-color:#1a9fff;width:14px;height:14px;"
+                       onchange="toggleHltbFilter(this.checked)">
+                Max completion time
+            </label>
+
+        </div>
+
+        {# HLTB filter row — hidden until checkbox is checked #}
+        <div id="hltb-filter-row" class="hidden px-4 pb-3.5 flex items-center gap-3 border-t border-white/[0.06] pt-3">
+            <span class="text-xs text-steam-muted whitespace-nowrap flex-shrink-0">Time to beat</span>
+            <input type="range" id="surprise-hltb-slider"
+                   min="5" max="200" step="5" value="30"
+                   oninput="updateHltbLabel(this.value)"
+                   class="flex-1 min-w-0"
+                   style="accent-color:#1a9fff;">
+            <span id="surprise-hltb-label" class="text-xs font-semibold text-white whitespace-nowrap"
+                  style="min-width:70px;text-align:right;">≤ 30 hrs</span>
+        </div>
+
+    </div>
+
+    {# ── Game grid ── #}
+    <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {% for game in games %}
+        <div class="game-card group relative rounded-xl overflow-hidden transition-transform duration-200 hover:scale-[1.03] cursor-pointer"
+             data-appid="{{ game.appid }}"
+             data-name="{{ game.name|lower }}"
+             data-app-name="{{ game.name|e('html_attr') }}"
+             data-status="{{ game.status }}"
+             data-rating="{{ game.rating ?? 0 }}"
+             data-notes="{{ game.notes|e('html_attr') }}"
+             data-spotlight="{{ game.is_spotlight ? '1' : '0' }}"
+             data-notes-public="{{ game.notes_public ? '1' : '0' }}"
+             data-playtime="{{ game.playtime_mins }}"
+             data-recent="{{ game.recent_mins }}"
+             data-hltb="{{ game.hltb_fetched ? (game.hltb_hours is not null ? game.hltb_hours : 'n/a') : '' }}"
+             data-ach-fetched="{{ game.ach_fetched ? '1' : '0' }}"
+             data-ach-unlocked="{{ game.ach_unlocked }}"
+             data-ach-total="{{ game.ach_total }}"
+             data-ach-perfect="{{ game.ach_perfect ? '1' : '0' }}"
+             style="background:#111923;">
+
+            {# Image #}
+            <div class="relative">
+                <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ game.appid }}/header.jpg"
+                     alt="{{ game.name }}"
+                     class="w-full block"
+                     onerror="handleImageError(this, {{ game.appid }})">
+                <div class="fallback-img hidden w-full items-center justify-center bg-[#0a1018] px-4"
+                     style="aspect-ratio:460/215;">
+                    <span class="text-steam-muted text-xs text-center leading-snug line-clamp-3">{{ game.name }}</span>
+                </div>
+
+                {# Status badge #}
+                <div class="status-badge absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-md
+                    {% if game.status == 'completed' %}bg-steam-green text-black
+                    {% elseif game.status == 'playing' %}bg-steam-blue text-white
+                    {% elseif game.status == 'dropped' %}bg-red-500 text-white
+                    {% elseif game.status == 'on_hold' %}bg-yellow-500 text-black
+                    {% else %}hidden{% endif %}">
+                    {% if game.status == 'completed' %}✓ Done
+                    {% elseif game.status == 'playing' %}▶ Playing
+                    {% elseif game.status == 'dropped' %}✕ Dropped
+                    {% elseif game.status == 'on_hold' %}⏸ On Hold
+                    {% endif %}
+                </div>
+
+                {# Perfect achievement badge (top-right) — shown by JS when 100% achievements #}
+                <div class="ach-perfect-badge absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded-md hidden"
+                     style="background:rgba(251,191,36,0.9);color:#000;pointer-events:none;">
+                    🏆 100%
+                </div>
+
+                {# Hover overlay #}
+                <div class="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto"
+                     style="background:rgba(0,0,0,0.7);">
+                    {% if is_owner %}
+                    <button onclick="openModal({{ game.appid }}, this)"
+                            class="px-4 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors active:scale-95">
+                        ✏ Edit
+                    </button>
+                    {% endif %}
+                    <a href="{{ path('game_detail', {steamId: steam_id, appId: game.appid}) }}"
+                       class="px-4 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
+                       onclick="event.stopPropagation()">
+                        Details →
+                    </a>
+                </div>
+            </div>
+
+            {# Info bar #}
+            <div class="px-3 py-2.5 border-t border-white/[0.06]" style="background:#0e1620;">
+                <a href="{{ path('game_detail', {steamId: steam_id, appId: game.appid}) }}"
+                   class="text-sm font-semibold text-white leading-snug truncate block hover:text-steam-blue transition-colors"
+                   onclick="event.stopPropagation()">{{ game.name }}</a>
+                <div class="flex items-center justify-between mt-0.5">
+                    <div class="game-meta text-xs text-steam-muted">
+                        {{- game.playtime_hrs > 0 ? game.playtime_hrs ~ ' hrs' : 'Never played' -}}
+                        {%- if game.status == 'completed' and game.completed_at %}
+                            <span class="text-steam-green"> · {{ game.completed_at }}</span>
+                        {%- endif %}
+                    </div>
+                    {% if game.rating %}
+                    <div class="game-stars text-yellow-400 text-xs tracking-tighter leading-none">
+                        {%- for i in 1..5 -%}{{ i <= game.rating ? '★' : '☆' }}{%- endfor -%}
+                    </div>
+                    {% else %}
+                    <div class="game-stars text-xs tracking-tighter leading-none text-transparent select-none">☆☆☆☆☆</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="no-results" class="hidden text-center text-steam-muted py-20 text-sm">No games match your search.</div>
+
+</div>
+
+{# ── Jump to top ── #}
+<button id="back-to-top"
+        onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        class="fixed bottom-6 right-6 z-30 w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all duration-200 opacity-0 pointer-events-none"
+        style="background:#1a9fff;box-shadow:0 4px 20px rgba(26,159,255,0.4);"
+        title="Back to top">
+    <svg xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;color:#fff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function () {
+    const btn = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+        const show = window.scrollY > 400;
+        btn.style.opacity        = show ? '1'    : '0';
+        btn.style.pointerEvents  = show ? 'auto' : 'none';
+    }, { passive: true });
+})();
+</script>
+
+{# ── Surprise Me Modal ── #}
+<div id="surprise-modal"
+     class="fixed inset-0 z-40 flex items-center justify-center px-4 opacity-0 pointer-events-none"
+     style="background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:opacity 0.2s ease;"
+     onclick="if(event.target===this)closeSurpriseModal()">
+    <div id="surprise-modal-box"
+         class="w-full rounded-2xl border border-white/10 shadow-2xl"
+         style="max-width:900px;background:#0e1620;transform:scale(0.95);opacity:0;transition:transform 0.2s ease,opacity 0.2s ease;padding:1.5rem;">
+
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <div class="text-white font-black text-xl tracking-tight">Pick Your Next Game</div>
+                <div class="text-steam-muted text-xs mt-0.5">Click a card to select it</div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button onclick="rollAgain()"
+                        class="px-4 py-2 rounded-lg text-sm font-bold border border-white/10 text-steam-light hover:text-white hover:border-white/30 transition-colors">
+                    🎲 Roll Again
+                </button>
+                <button onclick="closeSurpriseModal()"
+                        class="text-white/60 hover:text-white text-xl leading-none bg-black/40 rounded-full w-8 h-8 flex items-center justify-center transition-colors flex-shrink-0">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <div id="surprise-card-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-5"></div>
+    </div>
+</div>
+
+{# ── Modal ── #}
+<div id="modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center px-4 opacity-0 pointer-events-none"
+     style="background:rgba(0,0,0,0.7);"
+     onclick="closeModal(event)">
+    <div id="modal-box" class="w-full max-w-md rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
+         style="background:#111923; transform:scale(0.95); opacity:0;">
+
+        {# Modal cover image #}
+        <div class="relative">
+            <img id="modal-img" src="" alt="" class="w-full block">
+            <div class="absolute inset-0 pointer-events-none"
+                 style="background:linear-gradient(to bottom, transparent 40%, rgba(17,25,35,1) 100%)"></div>
+            <button onclick="closeModal()" class="absolute top-3 right-3 text-white/60 hover:text-white text-xl leading-none bg-black/40 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+        </div>
+
+        <div class="px-5 pb-5 -mt-6 relative">
+            <h2 id="modal-title" class="text-lg font-bold text-white leading-snug mb-1"></h2>
+            <div class="flex items-center gap-4 mb-5">
+                <p id="modal-playtime" class="text-steam-muted text-xs"></p>
+                <span class="text-white/20 text-xs">·</span>
+                <div class="flex items-center gap-1.5 text-xs">
+                    <span class="text-steam-muted">HLTB</span>
+                    <span id="modal-hltb" class="font-semibold text-white">—</span>
+                </div>
+            </div>
+
+            {# Achievements #}
+            <div id="modal-ach-section" class="mb-5 hidden">
+                <div class="text-xs uppercase tracking-widest text-steam-muted mb-2.5">Achievements</div>
+                <div id="modal-ach-content"></div>
+            </div>
+
+            {# Status pills #}
+            <div class="mb-5">
+                <div class="text-xs uppercase tracking-widest text-steam-muted mb-2.5">Status</div>
+                <div class="flex flex-wrap gap-2" id="status-pills">
+                    <button class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold border" data-value="unplayed"
+                            style="border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#8f98a0;">
+                        Unplayed
+                    </button>
+                    <button class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold border" data-value="playing"
+                            style="border-color:rgba(26,159,255,0.3);background:rgba(26,159,255,0.1);color:#1a9fff;">
+                        ▶ Playing
+                    </button>
+                    <button class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold border" data-value="completed"
+                            style="border-color:rgba(164,208,7,0.3);background:rgba(164,208,7,0.1);color:#a4d007;">
+                        ✓ Completed
+                    </button>
+                    <button class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold border" data-value="dropped"
+                            style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#f87171;">
+                        ✕ Dropped
+                    </button>
+                    <button class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold border" data-value="on_hold"
+                            style="border-color:rgba(234,179,8,0.3);background:rgba(234,179,8,0.1);color:#fbbf24;">
+                        ⏸ On Hold
+                    </button>
+                </div>
+            </div>
+
+            {# Star rating #}
+            <div class="mb-5">
+                <div class="text-xs uppercase tracking-widest text-steam-muted mb-2.5">Rating</div>
+                <div class="flex gap-1" id="star-row">
+                    <span class="star-btn text-steam-muted" data-value="1">★</span>
+                    <span class="star-btn text-steam-muted" data-value="2">★</span>
+                    <span class="star-btn text-steam-muted" data-value="3">★</span>
+                    <span class="star-btn text-steam-muted" data-value="4">★</span>
+                    <span class="star-btn text-steam-muted" data-value="5">★</span>
+                </div>
+            </div>
+
+            {# Notes #}
+            <div class="mb-6">
+                <div class="text-xs uppercase tracking-widest text-steam-muted mb-2.5">Notes</div>
+                <textarea id="modal-notes" rows="3" placeholder="Your thoughts…"
+                          class="w-full rounded-lg px-3 py-2.5 text-sm text-steam-light placeholder-steam-muted border border-white/10 outline-none focus:border-steam-blue resize-none transition-colors"
+                          style="background:rgba(0,0,0,0.3);"></textarea>
+            </div>
+
+            {# Notes public toggle #}
+            {% if is_owner %}
+            <div class="mb-5">
+                <label class="flex items-center gap-2.5 cursor-pointer group">
+                    <input type="checkbox" id="modal-notes-public"
+                           style="width:15px;height:15px;accent-color:#1a9fff;cursor:pointer;">
+                    <span class="text-xs text-steam-muted group-hover:text-steam-light transition-colors select-none">Make notes public</span>
+                </label>
+            </div>
+            {% endif %}
+
+            {# Spotlight toggle #}
+            {% if is_owner %}
+            <div class="mb-5">
+                <button id="spotlight-toggle" onclick="toggleSpotlight()"
+                        class="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-xs font-semibold border transition-all w-full"
+                        style="border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#8f98a0;">
+                    <span id="spotlight-icon" class="text-sm">♦</span>
+                    <span id="spotlight-label">Add to Spotlight</span>
+                </button>
+            </div>
+            {% endif %}
+
+            {# Footer #}
+            <div class="flex gap-3">
+                <button onclick="closeModal()"
+                        class="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-white/10 text-steam-muted hover:text-white hover:border-white/30 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="saveModal()"
+                        class="flex-1 py-2.5 rounded-lg text-sm font-bold text-white transition-colors"
+                        style="background:#1a9fff;" id="modal-save-btn">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const STEAM_ID  = '{{ steam_id }}';
+const IS_OWNER  = {{ is_owner ? 'true' : 'false' }};
+function copyLibraryLink(btn) {
+    let url = window.location.href.split('?')[0]; // strip existing params
+    if (url.includes('ngrok')) url += '?ngrok-skip-browser-warning=true';
+    navigator.clipboard.writeText(url).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.style.color = '#a4d007';
+        btn.style.borderColor = 'rgba(164,208,7,0.4)';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    });
+}
+</script>
+<script src="/js/games.js?v={{ 'now'|date('U') }}"></script>
+
+{% if is_owner %}
+<script>
+// ── Spotlight drag & drop ──────────────────────────────────────────────────
+
+const _dnd = {
+    steamId:  '{{ steam_id }}',
+    appId:    null,
+    source:   null,   // 'library' | 'spotlight'
+    srcCard:  null,
+};
+
+function _dndInit() {
+    document.querySelectorAll('.game-card').forEach(_bindLibraryCard);
+    document.querySelectorAll('.spotlight-card').forEach(_bindSpotlightCard);
+    _setupDropZones();
+}
+
+function _bindLibraryCard(card) {
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', e => {
+        if (card.dataset.spotlight === '1') { e.preventDefault(); return; }
+        _dnd.appId   = card.dataset.appid;
+        _dnd.source  = 'library';
+        _dnd.srcCard = card;
+        e.dataTransfer.effectAllowed = 'move';
+        requestAnimationFrame(() => card.style.opacity = '0.45');
+        document.getElementById('spotlight-grid')?.classList.add('dnd-spotlight-target');
+        const empty = document.getElementById('spotlight-empty');
+        if (empty) empty.classList.add('dnd-spotlight-target');
+    });
+    card.addEventListener('dragend', _dndEnd);
+}
+
+function _bindSpotlightCard(card) {
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', e => {
+        _dnd.appId   = card.dataset.appid;
+        _dnd.source  = 'spotlight';
+        _dnd.srcCard = card;
+        e.dataTransfer.effectAllowed = 'move';
+        requestAnimationFrame(() => card.style.opacity = '0.4');
+        document.getElementById('spotlight-remove-zone')?.classList.remove('hidden');
+    });
+    card.addEventListener('dragend', _dndEnd);
+}
+
+function _dndEnd(e) {
+    if (_dnd.srcCard) _dnd.srcCard.style.opacity = '';
+    document.getElementById('spotlight-grid')?.classList.remove('dnd-spotlight-target', 'dnd-over');
+    document.getElementById('spotlight-empty')?.classList.remove('dnd-spotlight-target', 'dnd-over');
+    document.getElementById('spotlight-remove-zone')?.classList.add('hidden');
+    document.getElementById('spotlight-remove-zone')?.classList.remove('dnd-remove-over');
+    _dnd.appId = _dnd.source = _dnd.srcCard = null;
+}
+
+function _setupDropZones() {
+    // ── Spotlight grid + empty state → add to spotlight ──────────────────
+    ['spotlight-grid', 'spotlight-empty'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('dragover', e => {
+            if (_dnd.source !== 'library') return;
+            e.preventDefault();
+            el.classList.add('dnd-over');
+        });
+        el.addEventListener('dragleave', () => el.classList.remove('dnd-over'));
+        el.addEventListener('drop', e => {
+            e.preventDefault();
+            el.classList.remove('dnd-over');
+            if (_dnd.source === 'library' && _dnd.appId) _doUpdate(_dnd.appId, true);
+        });
+    });
+
+    // ── Remove zone → remove from spotlight ───────────────────────────────
+    const removeZone = document.getElementById('spotlight-remove-zone');
+    if (removeZone) {
+        removeZone.addEventListener('dragover', e => {
+            if (_dnd.source !== 'spotlight') return;
+            e.preventDefault();
+            removeZone.classList.add('dnd-remove-over');
+        });
+        removeZone.addEventListener('dragleave', () => removeZone.classList.remove('dnd-remove-over'));
+        removeZone.addEventListener('drop', e => {
+            e.preventDefault();
+            removeZone.classList.remove('dnd-remove-over');
+            if (_dnd.source === 'spotlight' && _dnd.appId) _doUpdate(_dnd.appId, false);
+        });
+    }
+}
+
+async function _doUpdate(appId, spotlight) {
+    const lib = document.querySelector(`.game-card[data-appid="${appId}"]`);
+
+    const body = {
+        spotlight,
+        status:   lib?.dataset.status   || 'unplayed',
+        rating:   parseInt(lib?.dataset.rating) || 0,
+        notes:    lib?.dataset.notes    || '',
+        app_name: lib?.dataset.appName  || '',
+    };
+
+    try {
+        const res = await fetch(`/games/${_dnd.steamId}/${appId}/update`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+    } catch (err) {
+        console.error('Spotlight DnD update failed', err);
+        return;
+    }
+
+    if (lib) lib.dataset.spotlight = spotlight ? '1' : '0';
+
+    if (spotlight) {
+        _insertSpotlightCard(appId, lib);
+    } else {
+        _removeSpotlightCard(appId);
+    }
+}
+
+function _insertSpotlightCard(appId, lib) {
+    const grid = document.getElementById('spotlight-grid');
+    if (!grid || grid.querySelector(`[data-appid="${appId}"]`)) return;
+
+    const name   = lib?.dataset.appName || lib?.querySelector('a')?.textContent?.trim() || '';
+    const rating = parseInt(lib?.dataset.rating) || 0;
+    const notes  = lib?.dataset.notes || '';
+    const status = lib?.dataset.status || 'unplayed';
+
+    const stars = rating > 0
+        ? Array.from({length: 5}, (_, i) =>
+            `<span style="opacity:${i < rating ? 1 : 0.3}">★</span>`).join('')
+        : '';
+
+    const card = document.createElement('div');
+    card.className = 'spotlight-card group relative rounded-xl overflow-hidden cursor-pointer';
+    card.dataset.appid   = appId;
+    card.dataset.status  = status;
+    card.dataset.rating  = rating;
+    card.dataset.notes   = notes;
+    card.dataset.spotlight = '1';
+    card.dataset.appName = name;
+    card.innerHTML = `
+        <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/header.jpg"
+             alt="${name}" class="w-full block"
+             onerror="this.parentElement.style.background='#111923'">
+        <div class="absolute inset-0 pointer-events-none"
+             style="background:linear-gradient(to bottom,transparent 25%,rgba(0,0,0,0.95) 100%)"></div>
+        <div class="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-8">
+            <div class="text-white font-bold text-sm leading-tight mb-1">${name}</div>
+            ${stars ? `<div class="text-yellow-400 text-xs tracking-tighter mb-1.5">${stars}</div>` : ''}
+            ${notes ? `<div class="text-steam-muted text-xs leading-snug line-clamp-2">${notes}</div>` : ''}
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto"
+             style="background:rgba(0,0,0,0.65);">
+            <button onclick="openModal(${appId}, this); event.stopPropagation();"
+                    class="px-3 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors active:scale-95">
+                ✏ Edit
+            </button>
+            <a href="/games/${_dnd.steamId}/${appId}"
+               class="px-3 py-2 rounded-lg text-sm font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
+               onclick="event.stopPropagation()">
+                Details →
+            </a>
+        </div>`;
+
+    _bindSpotlightCard(card);
+
+    document.getElementById('spotlight-empty')?.classList.add('hidden');
+    grid.appendChild(card);
+}
+
+function _removeSpotlightCard(appId) {
+    document.querySelector(`.spotlight-card[data-appid="${appId}"]`)?.remove();
+
+    const grid  = document.getElementById('spotlight-grid');
+    const empty = document.getElementById('spotlight-empty');
+    if (grid && empty && grid.querySelectorAll('.spotlight-card').length === 0) {
+        empty.classList.remove('hidden');
+    }
+}
+
+// CSS for drag-over states (injected once, avoids extra stylesheet)
+const _dndStyle = document.createElement('style');
+_dndStyle.textContent = `
+    #spotlight-grid.dnd-spotlight-target,
+    #spotlight-empty.dnd-spotlight-target {
+        outline: 2px dashed rgba(251,191,36,0.35);
+        outline-offset: 6px;
+        border-radius: 12px;
+        transition: outline-color 0.15s;
+    }
+    #spotlight-grid.dnd-over,
+    #spotlight-empty.dnd-over {
+        outline-color: rgba(251,191,36,0.8);
+        background: rgba(251,191,36,0.04);
+    }
+    #spotlight-remove-zone.dnd-remove-over {
+        background: rgba(248,113,113,0.1) !important;
+        border-color: rgba(248,113,113,0.55) !important;
+        color: #f87171 !important;
+    }
+`;
+document.head.appendChild(_dndStyle);
+
+document.addEventListener('DOMContentLoaded', _dndInit);
+</script>
+{% endif %}
+{% endblock %}

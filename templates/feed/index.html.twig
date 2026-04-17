@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activity Feed · Steam Game Tracker{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+
+    {# ── Hero header ── #}
+    <div class="border-b border-white/[0.06]" style="background:linear-gradient(135deg,rgba(26,159,255,0.06) 0%,rgba(164,208,7,0.04) 100%);">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            {% if logged_in %}
+            <a href="{{ path('game_library', {steamId: my_steam_id}) }}"
+               class="inline-flex items-center gap-2 text-steam-muted text-sm mb-4 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back to library
+            </a>
+            {% endif %}
+            <h1 class="text-2xl font-black text-white">Activity Feed</h1>
+            <p class="text-steam-muted text-sm mt-1">What you and your friends have been playing lately</p>
+        </div>
+    </div>
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+    {# ── Not logged in ── #}
+    {% if not logged_in %}
+    <div class="max-w-md mx-auto rounded-2xl p-12 border border-white/[0.06] text-center mt-8" style="background:rgba(255,255,255,0.02);">
+        <div class="text-5xl mb-4">🎮</div>
+        <div class="text-white font-bold text-lg mb-2">Sign in to see your feed</div>
+        <p class="text-steam-muted text-sm mb-6">See what you and your Steam friends have been completing, dropping, and rating.</p>
+        <a href="{{ path('steam_auth') }}"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-colors"
+           style="background:#1a9fff;">
+            Sign in with Steam
+        </a>
+    </div>
+
+    {% else %}
+    {# ── Two-column layout ── #}
+    <div class="flex flex-col lg:flex-row gap-6">
+
+        {# ── LEFT: Feed ── #}
+        <div class="flex-1 min-w-0">
+
+            {# Filter pills #}
+            {% if entries|length > 0 %}
+            <div class="flex flex-wrap gap-2 mb-5">
+                <button onclick="setFeedFilter('all', this)"
+                        class="feed-filter-btn active flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+                        style="background:rgba(26,159,255,0.2);color:#1a9fff;border:1px solid rgba(26,159,255,0.4);">
+                    All
+                </button>
+                {% for steamId, count in activity_counts %}
+                {% set fp = players[steamId] ?? null %}
+                {% if fp %}
+                <button onclick="setFeedFilter('{{ steamId }}', this)"
+                        class="feed-filter-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+                        style="background:rgba(255,255,255,0.05);color:#8f98a0;border:1px solid rgba(255,255,255,0.1);"
+                        data-steamid="{{ steamId }}">
+                    <img src="{{ fp.avatarmedium ?? fp.avatar ?? '' }}" alt="" class="w-4 h-4 rounded-full">
+                    {{ fp.personaname }}
+                    <span class="opacity-60">{{ count }}</span>
+                </button>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Private friend list notice (but still show own entries) #}
+            {% if friends_private %}
+            <div class="rounded-xl px-4 py-3 border border-yellow-500/20 text-xs text-yellow-400/80 mb-4 flex items-center gap-2"
+                 style="background:rgba(234,179,8,0.06);">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Friend list is private — showing your activity only.
+                <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" class="underline hover:text-yellow-300">Fix this</a>
+            </div>
+            {% endif %}
+
+            {# Empty state #}
+            {% if entries|length == 0 %}
+            <div class="rounded-2xl p-12 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.02);">
+                <div class="text-4xl mb-3">🎮</div>
+                <div class="text-white font-semibold mb-1">Nothing here yet</div>
+                <p class="text-steam-muted text-sm">Activity shows up as you and your friends complete and rate games.</p>
+            </div>
+
+            {% else %}
+            {# Feed entries #}
+            <div class="flex flex-col gap-2.5" id="feed-list">
+            {% for entry in entries %}
+            {% set player = players[entry.steamId] ?? null %}
+
+            {% if entry.type == 'completed' %}
+                {% set accent = '#a4d007' %}
+                {% set accentAlpha = 'rgba(164,208,7,0.12)' %}
+                {% set verb = 'completed' %}
+                {% set verbIcon %}<polyline points="20 6 9 17 4 12"/>{% endset %}
+            {% elseif entry.type == 'dropped' %}
+                {% set accent = '#f87171' %}
+                {% set accentAlpha = 'rgba(248,113,113,0.12)' %}
+                {% set verb = 'dropped' %}
+                {% set verbIcon %}<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>{% endset %}
+            {% else %}
+                {% set accent = '#fbbf24' %}
+                {% set accentAlpha = 'rgba(251,191,36,0.12)' %}
+                {% set verb = 'rated' %}
+                {% set verbIcon %}<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>{% endset %}
+            {% endif %}
+
+            <div class="feed-entry rounded-2xl border border-white/[0.06] overflow-hidden flex items-stretch hover:border-white/[0.15] transition-all group"
+                 style="background:rgba(255,255,255,0.02);"
+                 data-steamid="{{ entry.steamId }}">
+
+                {# Colored left accent #}
+                <div class="w-1 flex-shrink-0" style="background:{{ accent }};opacity:0.7;"></div>
+
+                {# Game cover #}
+                <div class="flex-shrink-0 relative overflow-hidden" style="width:88px;">
+                    <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ entry.appId }}/header.jpg"
+                         alt="{{ entry.appName }}"
+                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                         onerror="this.parentElement.style.background='rgba(255,255,255,0.05)'">
+                </div>
+
+                {# Content #}
+                <div class="flex-1 px-4 py-3 min-w-0">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+
+                            {# Player + verb badge #}
+                            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                {% if player %}
+                                <a href="{{ path('game_library', {steamId: entry.steamId}) }}"
+                                   class="flex items-center gap-1.5 hover:opacity-75 transition-opacity min-w-0">
+                                    <img src="{{ player.avatarmedium ?? player.avatar ?? '' }}" alt=""
+                                         class="w-5 h-5 rounded-full flex-shrink-0">
+                                    <span class="text-sm font-bold text-white truncate">{{ player.personaname }}</span>
+                                </a>
+                                {% else %}
+                                <span class="text-sm font-bold text-white">A player</span>
+                                {% endif %}
+
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+                                      style="background:{{ accentAlpha }};color:{{ accent }};">
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="width:11px;height:11px;" viewBox="0 0 24 24" fill="{{ entry.type == 'rated' ? accent : 'none' }}" stroke="{{ entry.type != 'rated' ? accent : 'none' }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">{{ verbIcon }}</svg>
+                                    {{ verb }}
+                                </span>
+                            </div>
+
+                            {# Game name #}
+                            <div class="text-steam-light text-sm font-semibold truncate group-hover:text-white transition-colors">
+                                {{ entry.appName }}
+                            </div>
+
+                            {# Stars + note #}
+                            {% if entry.metadata %}
+                            <div class="mt-1.5 flex flex-col gap-1">
+                                {% if entry.metadata.rating is defined %}
+                                <div class="text-xs" style="color:#fbbf24;letter-spacing:1px;">
+                                    {%- for i in 1..5 -%}<span style="opacity:{{ i <= entry.metadata.rating ? '1' : '0.25' }};">★</span>{%- endfor -%}
+                                </div>
+                                {% endif %}
+                                {% if entry.metadata.notes is defined and entry.metadata.notes %}
+                                <p class="text-xs text-steam-muted italic leading-relaxed" style="max-width:420px;">"{{ entry.metadata.notes }}"</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {# Date #}
+                        <div class="text-xs text-steam-muted flex-shrink-0 mt-0.5 whitespace-nowrap">
+                            {{ entry.createdAt|date('M j') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+
+            <div id="feed-empty-filter" class="hidden text-center text-steam-muted py-12 text-sm">
+                No activity from this person yet.
+            </div>
+            {% endif %}
+
+        </div>{# end left col #}
+
+        {# ── RIGHT: Sidebar ── #}
+        <div class="lg:w-72 flex flex-col gap-4 flex-shrink-0">
+
+            {# Completion leaderboard #}
+            {% if completion_counts|length > 0 %}
+            <div class="rounded-2xl p-5 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                <h3 class="text-xs font-semibold text-white uppercase tracking-widest mb-4">Completions in feed</h3>
+                {% set maxCount = null %}
+                {% for sid, cnt in completion_counts %}{% if maxCount is null or cnt > maxCount %}{% set maxCount = cnt %}{% endif %}{% endfor %}
+                <div class="flex flex-col gap-3">
+                {% for steamId, count in completion_counts|slice(0, 5) %}
+                {% set sp = players[steamId] ?? null %}
+                {% if sp %}
+                <div class="flex items-center gap-3">
+                    <img src="{{ sp.avatarmedium ?? sp.avatar ?? '' }}" alt="" class="w-8 h-8 rounded-full flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-steam-light truncate">{{ sp.personaname }}</div>
+                        <div class="mt-1 rounded-full overflow-hidden" style="height:4px;background:rgba(255,255,255,0.06);">
+                            <div class="h-full rounded-full" style="width:{{ maxCount > 0 ? (count / maxCount * 100)|round : 0 }}%;background:#a4d007;"></div>
+                        </div>
+                    </div>
+                    <div class="text-xs font-bold text-steam-green flex-shrink-0">{{ count }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {# Quick filter by person #}
+            {% if activity_counts|length > 1 %}
+            <div class="rounded-2xl p-5 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                <h3 class="text-xs font-semibold text-white uppercase tracking-widest mb-4">Filter by person</h3>
+                <div class="flex flex-col gap-2">
+                {% for steamId, count in activity_counts %}
+                {% set sp = players[steamId] ?? null %}
+                {% if sp %}
+                <button onclick="setFeedFilter('{{ steamId }}', null)"
+                        class="sidebar-filter flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors w-full hover:bg-white/[0.05]"
+                        data-steamid="{{ steamId }}">
+                    <img src="{{ sp.avatarmedium ?? sp.avatar ?? '' }}" alt="" class="w-7 h-7 rounded-full flex-shrink-0">
+                    <span class="text-sm text-steam-light truncate flex-1">{{ sp.personaname }}</span>
+                    <span class="text-xs text-steam-muted">{{ count }}</span>
+                </button>
+                {% endif %}
+                {% endfor %}
+                <button onclick="setFeedFilter('all', null)"
+                        class="sidebar-filter text-xs text-steam-muted hover:text-white transition-colors text-center mt-1 py-1">
+                    Show all
+                </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {# Invite a friend nudge #}
+            <div class="rounded-2xl p-5 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                <h3 class="text-xs font-semibold text-white uppercase tracking-widest mb-2">Invite friends</h3>
+                <p class="text-xs text-steam-muted mb-3 leading-relaxed">Share Steam Game Tracker with your Steam friends to see their activity here.</p>
+                <a href="{{ path('game_compare_pick', {steamId: my_steam_id}) }}"
+                   class="block text-center px-4 py-2 rounded-xl text-xs font-semibold transition-colors border border-white/10 text-steam-muted hover:text-white hover:border-white/30">
+                    Go to Compare & Invite →
+                </a>
+            </div>
+
+        </div>{# end sidebar #}
+
+    </div>{# end two-col #}
+    {% endif %}
+
+</div>
+</div>
+
+<script>
+let currentFeedFilter = 'all';
+
+function setFeedFilter(steamId, clickedBtn) {
+    currentFeedFilter = steamId;
+
+    // Sync pill buttons at top
+    document.querySelectorAll('.feed-filter-btn').forEach(btn => {
+        const isAll   = steamId === 'all' && !btn.dataset.steamid;
+        const isMatch = btn.dataset.steamid === steamId;
+        const active  = isAll || isMatch;
+        btn.style.background    = active ? 'rgba(26,159,255,0.2)'      : 'rgba(255,255,255,0.05)';
+        btn.style.color         = active ? '#1a9fff'                    : '#8f98a0';
+        btn.style.borderColor   = active ? 'rgba(26,159,255,0.4)'      : 'rgba(255,255,255,0.1)';
+    });
+
+    // Filter entries
+    let visible = 0;
+    document.querySelectorAll('.feed-entry').forEach(row => {
+        const show = steamId === 'all' || row.dataset.steamid === steamId;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+
+    const empty = document.getElementById('feed-empty-filter');
+    if (empty) empty.classList.toggle('hidden', visible > 0);
+}
+</script>
+{% endblock %}

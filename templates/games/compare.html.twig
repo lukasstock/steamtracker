@@ -1,0 +1,576 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ player_a.personaname ?? 'Player' }} vs {{ player_b.personaname ?? 'Player' }} · Steam Game Tracker
+{% endblock %}
+
+{% block head %}
+<style>
+.ach-rare-item {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.ach-rare-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: block;
+}
+.ach-rare-tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    width: 200px;
+    background: #0d1520;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    padding: 9px 11px;
+    font-size: 11px;
+    color: #c6d4df;
+    z-index: 50;
+    pointer-events: none;
+    white-space: normal;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+/* Caret — sits under the icon center (icon is 32px wide, left-anchored) */
+.ach-rare-tip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 11px;
+    border: 5px solid transparent;
+    border-top-color: rgba(255,255,255,0.14);
+}
+/* Last icon anchors right so tooltip doesn't bleed off the right edge */
+.ach-rare-item:last-child .ach-rare-tip {
+    left: auto;
+    right: 0;
+}
+.ach-rare-item:last-child .ach-rare-tip::after {
+    left: auto;
+    right: 11px;
+}
+.ach-rare-item:hover .ach-rare-tip { display: block; }
+.ach-rare-pct { color: #fbbf24; font-size: 10px; margin-top: 3px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+<div class="max-w-4xl mx-auto px-4 py-10">
+
+    {# Back link #}
+    <a href="{{ path('game_compare_pick', {steamId: steam_id}) }}"
+       class="inline-flex items-center gap-2 text-steam-muted text-sm mb-8 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to friends
+    </a>
+
+    {# VS Header #}
+    <div class="flex items-center justify-center gap-6 mb-8">
+        <div class="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
+            {% if player_a.avatarmedium is defined %}
+            <img src="{{ player_a.avatarmedium }}" alt="" class="w-16 h-16 rounded-full ring-2 ring-steam-blue">
+            {% endif %}
+            <div class="text-white font-bold truncate w-full">{{ player_a.personaname ?? 'You' }}</div>
+            {% if player_a.gameextrainfo is defined and player_a.gameextrainfo %}
+            <div class="flex items-center justify-center gap-1.5">
+                <span class="now-playing-dot"></span>
+                <span class="text-xs truncate" style="color:#a4d007;max-width:130px;">{{ player_a.gameextrainfo }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="text-2xl font-black text-steam-muted flex-shrink-0">VS</div>
+
+        <div class="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
+            {% if player_b.avatarmedium is defined %}
+            <img src="{{ player_b.avatarmedium }}" alt="" class="w-16 h-16 rounded-full ring-2 ring-white/20">
+            {% endif %}
+            <div class="text-white font-bold truncate w-full">{{ player_b.personaname ?? 'Friend' }}</div>
+            {% if player_b.gameextrainfo is defined and player_b.gameextrainfo %}
+            <div class="flex items-center justify-center gap-1.5">
+                <span class="now-playing-dot"></span>
+                <span class="text-xs truncate" style="color:#a4d007;max-width:130px;">{{ player_b.gameextrainfo }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── No library state ── #}
+    {% if no_library %}
+    <div class="rounded-xl p-8 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.03);">
+        <img src="{{ player_b.avatarmedium ?? '' }}" alt="" class="w-16 h-16 rounded-full mx-auto mb-4 opacity-60">
+        <div class="text-white font-bold mb-1">{{ player_b.personaname ?? 'This player' }} hasn't set up their library yet</div>
+        <p class="text-steam-muted text-sm mb-5">Share Steam Game Tracker with them so they can track their games too.</p>
+        <div class="flex items-center justify-center gap-2">
+            <div class="rounded-lg px-4 py-2 text-sm text-steam-muted border border-white/10 font-mono"
+                 style="background:rgba(0,0,0,0.3);" id="invite-url">{{ app.request.schemeAndHttpHost }}</div>
+            <button onclick="copyInviteUrl()"
+                    class="px-4 py-2 rounded-lg text-sm font-semibold border border-white/10 text-steam-muted hover:text-white hover:border-white/30 transition-colors"
+                    id="invite-copy-btn">
+                Copy link
+            </button>
+        </div>
+    </div>
+
+    <script>
+    function copyInviteUrl() {
+        const url = document.getElementById('invite-url').textContent;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('invite-copy-btn');
+            btn.textContent = '✓ Copied!';
+            btn.style.color = '#a4d007';
+            setTimeout(() => { btn.textContent = 'Copy link'; btn.style.color = ''; }, 2000);
+        });
+    }
+    </script>
+
+    {% else %}
+
+    {# ── Summary stats ── #}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="rounded-xl p-4 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.03);">
+            <div class="text-2xl font-black text-white">{{ counts.all }}</div>
+            <div class="text-xs text-steam-muted uppercase tracking-widest mt-1">Shared Games</div>
+        </div>
+        <div class="rounded-xl p-4 border border-white/[0.06] text-center" style="background:rgba(164,208,7,0.06);">
+            <div class="text-2xl font-black text-steam-green">{{ counts.both_completed }}</div>
+            <div class="text-xs text-steam-muted uppercase tracking-widest mt-1">Both Completed</div>
+        </div>
+        <div class="rounded-xl p-4 border border-white/[0.06] text-center" style="background:rgba(26,159,255,0.06);">
+            <div class="text-2xl font-black text-steam-blue">{{ counts.suggest_to_b + counts.suggest_to_a }}</div>
+            <div class="text-xs text-steam-muted uppercase tracking-widest mt-1">Recommendations</div>
+        </div>
+        <div class="rounded-xl p-4 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.03);">
+            <div class="text-2xl font-black text-steam-muted">{{ counts.only_a + counts.only_b }}</div>
+            <div class="text-xs text-steam-muted uppercase tracking-widest mt-1">Unique to One</div>
+        </div>
+    </div>
+
+    {# ── Total playtime comparison ── #}
+    {% if playtime_a is defined and playtime_max > 0 %}
+    <div class="rounded-xl border border-white/[0.06] px-5 py-4 mb-6" style="background:rgba(255,255,255,0.02);">
+        <div class="text-xs font-semibold uppercase tracking-widest text-steam-muted mb-4">Total Library Playtime</div>
+        <div class="flex flex-col gap-3">
+
+            {# Player A bar #}
+            <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    {% if player_a.avatarmedium is defined %}
+                    <img src="{{ player_a.avatarmedium }}" alt="" class="w-4 h-4 rounded-full flex-shrink-0">
+                    {% endif %}
+                    <span class="text-xs font-semibold text-steam-light truncate">{{ player_a.personaname ?? 'You' }}</span>
+                    <span class="text-xs text-steam-muted ml-auto flex-shrink-0">{{ playtime_a|round(0) }}h</span>
+                    {% if playtime_a > playtime_b %}<span class="text-xs font-bold ml-1 flex-shrink-0" style="color:#a4d007;">▲</span>{% endif %}
+                </div>
+                <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06);">
+                    <div class="h-full rounded-full" style="background:#1a9fff;width:{{ playtime_max > 0 ? ((playtime_a / playtime_max) * 100)|round : 0 }}%;transition:width 0.4s;"></div>
+                </div>
+            </div>
+
+            {# Player B bar #}
+            <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    {% if player_b.avatarmedium is defined %}
+                    <img src="{{ player_b.avatarmedium }}" alt="" class="w-4 h-4 rounded-full flex-shrink-0">
+                    {% endif %}
+                    <span class="text-xs font-semibold text-steam-light truncate">{{ player_b.personaname ?? 'Friend' }}</span>
+                    <span class="text-xs text-steam-muted ml-auto flex-shrink-0">{{ playtime_b|round(0) }}h</span>
+                    {% if playtime_b > playtime_a %}<span class="text-xs font-bold ml-1 flex-shrink-0" style="color:#a4d007;">▲</span>{% endif %}
+                </div>
+                <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06);">
+                    <div class="h-full rounded-full" style="background:rgba(255,255,255,0.25);width:{{ playtime_max > 0 ? ((playtime_b / playtime_max) * 100)|round : 0 }}%;transition:width 0.4s;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Badge Comparison ── #}
+    {% if earned_a is defined and (earned_a|length > 0 or earned_b|length > 0) %}
+    <div class="mb-6 rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
+
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-white">Badges</h3>
+            {% set sharedCount = shared_badge_ids|length %}
+            {% if sharedCount > 0 %}
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                  style="background:rgba(164,208,7,0.12);color:#a4d007;">
+                {{ sharedCount }} shared
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-2 divide-x divide-white/[0.06]">
+
+            {# Player A #}
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    {% if player_a.avatarmedium is defined %}
+                    <img src="{{ player_a.avatarmedium }}" alt="" class="w-5 h-5 rounded-full">
+                    {% endif %}
+                    <span class="text-xs font-semibold text-steam-light truncate">{{ player_a.personaname ?? 'You' }}</span>
+                    <span class="text-xs text-steam-muted ml-auto flex-shrink-0">{{ earned_a|length }} earned</span>
+                </div>
+                {% if earned_a|length == 0 %}
+                <p class="text-xs text-steam-muted">No badges yet.</p>
+                {% else %}
+                <div class="flex flex-wrap gap-1.5">
+                {% for badge in earned_a %}
+                {% set isShared = badge.id in shared_badge_ids %}
+                {% if badge.tier == 'bronze' %}{% set bc = '#cd7f32' %}{% set ba = 'rgba(205,127,50,0.12)' %}
+                {% elseif badge.tier == 'silver' %}{% set bc = '#adb5bd' %}{% set ba = 'rgba(173,181,189,0.12)' %}
+                {% elseif badge.tier == 'gold' %}{% set bc = '#fbbf24' %}{% set ba = 'rgba(251,191,36,0.12)' %}
+                {% elseif badge.tier == 'platinum' %}{% set bc = '#e879f9' %}{% set ba = 'rgba(232,121,249,0.12)' %}
+                {% else %}{% set bc = '#ff0080' %}{% set ba = 'rgba(255,0,128,0.1)' %}
+                {% endif %}
+                <div class="relative" title="{{ badge.name }}: {{ badge.description }}">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border"
+                          style="background:{{ ba }};border-color:{{ bc }}44;color:{{ bc }};">
+                        {{ badge.icon }}
+                        <span class="hidden sm:inline">{{ badge.name }}</span>
+                    </span>
+                    {% if isShared %}
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border border-[#1b2838]"
+                          style="background:#a4d007;"></span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            {# Player B #}
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    {% if player_b.avatarmedium is defined %}
+                    <img src="{{ player_b.avatarmedium }}" alt="" class="w-5 h-5 rounded-full">
+                    {% endif %}
+                    <span class="text-xs font-semibold text-steam-light truncate">{{ player_b.personaname ?? 'Friend' }}</span>
+                    <span class="text-xs text-steam-muted ml-auto flex-shrink-0">{{ earned_b|length }} earned</span>
+                </div>
+                {% if earned_b|length == 0 %}
+                <p class="text-xs text-steam-muted">No badges yet.</p>
+                {% else %}
+                <div class="flex flex-wrap gap-1.5">
+                {% for badge in earned_b %}
+                {% set isShared = badge.id in shared_badge_ids %}
+                {% if badge.tier == 'bronze' %}{% set bc = '#cd7f32' %}{% set ba = 'rgba(205,127,50,0.12)' %}
+                {% elseif badge.tier == 'silver' %}{% set bc = '#adb5bd' %}{% set ba = 'rgba(173,181,189,0.12)' %}
+                {% elseif badge.tier == 'gold' %}{% set bc = '#fbbf24' %}{% set ba = 'rgba(251,191,36,0.12)' %}
+                {% elseif badge.tier == 'platinum' %}{% set bc = '#e879f9' %}{% set ba = 'rgba(232,121,249,0.12)' %}
+                {% else %}{% set bc = '#ff0080' %}{% set ba = 'rgba(255,0,128,0.1)' %}
+                {% endif %}
+                <div class="relative" title="{{ badge.name }}: {{ badge.description }}">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border"
+                          style="background:{{ ba }};border-color:{{ bc }}44;color:{{ bc }};">
+                        {{ badge.icon }}
+                        <span class="hidden sm:inline">{{ badge.name }}</span>
+                    </span>
+                    {% if isShared %}
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border border-[#1b2838]"
+                          style="background:#a4d007;"></span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Filter tabs + search ── #}
+    <div class="mb-5">
+        <input type="text" id="compare-search" placeholder="Search games…" oninput="applyCompareFilters()"
+               class="w-full text-steam-light placeholder-steam-muted rounded-lg px-4 py-2 text-sm border border-white/10 outline-none focus:border-steam-blue transition-colors mb-3"
+               style="background:rgba(255,255,255,0.05);">
+        <div class="flex flex-wrap gap-2">
+            <button onclick="setFilter('all')" data-filter="all"
+                    class="filter-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-steam-blue text-white">
+                All <span class="ml-1 opacity-70">{{ counts.all }}</span>
+            </button>
+            <button onclick="setFilter('both_completed')" data-filter="both_completed"
+                    class="filter-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-steam-light"
+                    style="background:rgba(255,255,255,0.05);">
+                ✓ Both Completed <span class="ml-1 opacity-70">{{ counts.both_completed }}</span>
+            </button>
+            <button onclick="setFilter('suggest_to_b')" data-filter="suggest_to_b"
+                    class="filter-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-steam-light"
+                    style="background:rgba(255,255,255,0.05);">
+                → Suggest to {{ player_b.personaname ?? 'them' }} <span class="ml-1 opacity-70">{{ counts.suggest_to_b }}</span>
+            </button>
+            <button onclick="setFilter('suggest_to_a')" data-filter="suggest_to_a"
+                    class="filter-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-steam-light"
+                    style="background:rgba(255,255,255,0.05);">
+                ← {{ player_b.personaname ?? 'Their' }} suggestions <span class="ml-1 opacity-70">{{ counts.suggest_to_a }}</span>
+            </button>
+            {% if counts.both_playing > 0 %}
+            <button onclick="setFilter('both_playing')" data-filter="both_playing"
+                    class="filter-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-steam-light"
+                    style="background:rgba(255,255,255,0.05);">
+                ▶ Both Playing <span class="ml-1 opacity-70">{{ counts.both_playing }}</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Column headers #}
+    <div class="hidden sm:grid grid-cols-[1fr_160px_160px_32px] gap-4 px-4 mb-2">
+        <div class="text-xs uppercase tracking-widest text-steam-muted">Game</div>
+        <div class="text-xs uppercase tracking-widest text-steam-muted text-center">{{ player_a.personaname ?? 'You' }}</div>
+        <div class="text-xs uppercase tracking-widest text-steam-muted text-center">{{ player_b.personaname ?? 'Friend' }}</div>
+        <div></div>
+    </div>
+
+    {# ── Game rows ── #}
+    <div class="flex flex-col gap-2">
+    {% for game in shared %}
+    {% set statusColors = {
+        'completed': {bg: 'rgba(164,208,7,0.15)', color: '#a4d007', border: 'rgba(164,208,7,0.3)'},
+        'playing':   {bg: 'rgba(26,159,255,0.15)', color: '#1a9fff', border: 'rgba(26,159,255,0.3)'},
+        'dropped':   {bg: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'rgba(239,68,68,0.3)'},
+        'on_hold':   {bg: 'rgba(234,179,8,0.15)', color: '#fbbf24', border: 'rgba(234,179,8,0.3)'},
+        'unplayed':  {bg: 'rgba(255,255,255,0.04)', color: '#8f98a0', border: 'rgba(255,255,255,0.08)'},
+    } %}
+    {% set statusLabels = {
+        'completed': '✓ Completed',
+        'playing':   '▶ Playing',
+        'dropped':   '✕ Dropped',
+        'on_hold':   '⏸ On Hold',
+        'unplayed':  '— Unplayed',
+    } %}
+    <div class="game-row rounded-xl border border-white/[0.06] transition-colors hover:border-white/20"
+         style="background:rgba(255,255,255,0.02);"
+         data-category="{{ game.category }}"
+         data-name="{{ game.name|lower }}"
+         data-appid="{{ game.appid }}"
+         data-steam-a="{{ steam_id }}"
+         data-steam-b="{{ friend_steam_id }}">
+
+        {# ── Main row (clickable) ── #}
+        <div class="sm:grid sm:grid-cols-[1fr_160px_160px_32px] gap-4 items-center px-4 py-3 cursor-pointer select-none"
+             onclick="toggleAchPanel(this.closest('.game-row'))">
+
+            {# Game info #}
+            <div class="flex items-center gap-3 min-w-0 mb-3 sm:mb-0">
+                <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ game.appid }}/header.jpg"
+                     alt="{{ game.name }}"
+                     class="rounded flex-shrink-0"
+                     style="width:72px;height:34px;object-fit:cover;"
+                     onerror="this.style.display='none'">
+                <div class="min-w-0">
+                    <div class="text-sm font-semibold text-white truncate">{{ game.name }}</div>
+                    <div class="text-xs text-steam-muted">
+                        {{ (game.a_playtime_hrs + game.b_playtime_hrs)|round(1) }} hrs combined
+                    </div>
+                </div>
+            </div>
+
+            {# Player A status #}
+            {% set cA = statusColors[game.a_status] %}
+            <div class="flex flex-col items-center gap-1 mb-2 sm:mb-0">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-md"
+                      style="background:{{ cA.bg }};color:{{ cA.color }};border:1px solid {{ cA.border }};">
+                    {{ statusLabels[game.a_status] }}
+                </span>
+                <div class="text-xs text-steam-muted">
+                    {% if game.a_rating %}
+                        <span class="text-yellow-400">{%- for i in 1..5 -%}{{ i <= game.a_rating ? '★' : '☆' }}{%- endfor -%}</span>
+                        ·
+                    {% endif %}
+                    {{ game.a_playtime_hrs > 0 ? game.a_playtime_hrs ~ 'h' : '—' }}
+                </div>
+            </div>
+
+            {# Player B status #}
+            {% set cB = statusColors[game.b_status] %}
+            <div class="flex flex-col items-center gap-1 mb-2 sm:mb-0">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-md"
+                      style="background:{{ cB.bg }};color:{{ cB.color }};border:1px solid {{ cB.border }};">
+                    {{ statusLabels[game.b_status] }}
+                </span>
+                <div class="text-xs text-steam-muted">
+                    {% if game.b_rating %}
+                        <span class="text-yellow-400">{%- for i in 1..5 -%}{{ i <= game.b_rating ? '★' : '☆' }}{%- endfor -%}</span>
+                        ·
+                    {% endif %}
+                    {{ game.b_playtime_hrs > 0 ? game.b_playtime_hrs ~ 'h' : '—' }}
+                </div>
+            </div>
+
+            {# Expand chevron #}
+            <div class="ach-chevron hidden sm:flex items-center justify-center flex-shrink-0 text-steam-muted"
+                 style="transition:transform 0.2s;">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
+        </div>
+
+        {# ── Achievement panel (collapsed by default) ── #}
+        <div class="ach-panel hidden border-t border-white/[0.06]" style="background:rgba(0,0,0,0.15);">
+            <div class="grid grid-cols-2 divide-x divide-white/[0.06]">
+                <div class="ach-side-a px-4 py-3">
+                    <div class="text-xs text-steam-muted">Loading…</div>
+                </div>
+                <div class="ach-side-b px-4 py-3">
+                    <div class="text-xs text-steam-muted">Loading…</div>
+                </div>
+            </div>
+            {% if game.a_notes or game.b_notes %}
+            <div class="grid grid-cols-2 divide-x divide-white/[0.06] border-t border-white/[0.06]">
+                <div class="px-4 py-3">
+                    {% if game.a_notes %}
+                    <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">Notes</div>
+                    <p class="text-xs text-steam-light italic leading-relaxed">"{{ game.a_notes|slice(0, 120) }}{% if game.a_notes|length > 120 %}…{% endif %}"</p>
+                    {% endif %}
+                </div>
+                <div class="px-4 py-3">
+                    {% if game.b_notes %}
+                    <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">Notes</div>
+                    <p class="text-xs text-steam-light italic leading-relaxed">"{{ game.b_notes|slice(0, 120) }}{% if game.b_notes|length > 120 %}…{% endif %}"</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endfor %}
+    </div>
+
+    <div id="no-results" class="hidden text-center text-steam-muted py-16 text-sm">No games match your filters.</div>
+
+    {% endif %}
+
+</div>
+</div>
+
+<script>
+let currentFilter = 'all';
+
+function setFilter(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+        const active = btn.dataset.filter === filter;
+        btn.style.background = active ? '' : 'rgba(255,255,255,0.05)';
+        btn.classList.toggle('bg-steam-blue', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('text-steam-light', !active);
+    });
+    applyCompareFilters();
+}
+
+function applyCompareFilters() {
+    const q    = (document.getElementById('compare-search')?.value || '').toLowerCase();
+    const rows = document.querySelectorAll('.game-row');
+    let visible = 0;
+    rows.forEach(row => {
+        const matchFilter = currentFilter === 'all' || row.dataset.category === currentFilter;
+        const matchSearch = row.dataset.name.includes(q);
+        const show = matchFilter && matchSearch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('no-results')?.classList.toggle('hidden', visible > 0);
+}
+
+// ── Achievement panel toggle ──────────────────────────────────────
+
+function toggleAchPanel(row) {
+    const panel   = row.querySelector('.ach-panel');
+    const chevron = row.querySelector('.ach-chevron');
+    const isOpen  = !panel.classList.contains('hidden');
+
+    if (isOpen) {
+        panel.classList.add('hidden');
+        chevron.style.transform = '';
+        return;
+    }
+
+    panel.classList.remove('hidden');
+    chevron.style.transform = 'rotate(180deg)';
+
+    // Only fetch once
+    if (panel.dataset.loaded) return;
+    panel.dataset.loaded = '1';
+
+    const appId  = row.dataset.appid;
+    const steamA = row.dataset.steamA;
+    const steamB = row.dataset.steamB;
+    const sideA  = panel.querySelector('.ach-side-a');
+    const sideB  = panel.querySelector('.ach-side-b');
+
+    Promise.all([
+        fetch(`/games/${steamA}/${appId}/achievements`).then(r => r.json()).catch(() => null),
+        fetch(`/games/${steamB}/${appId}/achievements`).then(r => r.json()).catch(() => null),
+    ]).then(([dataA, dataB]) => {
+        sideA.innerHTML = buildAchSide(dataA);
+        sideB.innerHTML = buildAchSide(dataB);
+        // Highlight who has more achievements unlocked
+        if (dataA && dataB && dataA.has_achievements && dataB.has_achievements) {
+            const winA = dataA.unlocked > dataB.unlocked;
+            const winB = dataB.unlocked > dataA.unlocked;
+            if (winA) sideA.querySelector('.ach-count').style.color = '#a4d007';
+            if (winB) sideB.querySelector('.ach-count').style.color = '#a4d007';
+        }
+    });
+}
+
+function buildAchSide(data) {
+    if (!data || data.has_achievements === null) {
+        return '<span style="font-size:12px;color:#8f98a0;">Could not load</span>';
+    }
+    if (!data.has_achievements) {
+        return '<span style="font-size:12px;color:#8f98a0;">No achievements</span>';
+    }
+
+    const pct      = data.percent;
+    const perfect  = data.perfect;
+    const barColor = perfect ? '#a4d007' : pct >= 70 ? '#1a9fff' : pct >= 30 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)';
+
+    let rareHtml = '';
+    if (data.rare && data.rare.length > 0) {
+        const icons = data.rare.map(r => {
+            const name = (r.displayName || '').replace(/"/g, '&quot;');
+            const desc = (r.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const pctLabel = r.globalPercent + '% global';
+            const imgTag = r.icon
+                ? `<img src="${r.icon}" alt="${name}">`
+                : `<div style="width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);"></div>`;
+            return `<div class="ach-rare-item">
+                ${imgTag}
+                <div class="ach-rare-tip">
+                    <div style="font-weight:700;margin-bottom:3px;">${name}</div>
+                    ${desc ? `<div style="color:#8f98a0;line-height:1.4;">${desc}</div>` : ''}
+                    <div class="ach-rare-pct">${pctLabel} unlock rate</div>
+                </div>
+            </div>`;
+        }).join('');
+        rareHtml = `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">${icons}</div>`;
+    }
+
+    return `
+        <div class="ach-count" style="font-size:16px;font-weight:900;color:#c6d4df;line-height:1;">
+            ${data.unlocked}<span style="font-size:11px;font-weight:600;color:#8f98a0;">/${data.total}</span>
+        </div>
+        <div style="font-size:11px;color:#8f98a0;margin:3px 0 8px;">
+            ${pct}%${perfect ? ' &nbsp;🏆 Perfect' : ''}
+        </div>
+        <div style="height:4px;border-radius:9999px;overflow:hidden;background:rgba(255,255,255,0.06);">
+            <div style="height:100%;border-radius:9999px;background:${barColor};width:${pct}%;transition:width 0.4s;"></div>
+        </div>
+        ${rareHtml}
+    `;
+}
+</script>
+{% endblock %}

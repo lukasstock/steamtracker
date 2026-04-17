@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compare · Steam Game Tracker{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+<div class="max-w-3xl mx-auto px-4 py-10">
+
+    {# Back link #}
+    <a href="{{ path('game_library', {steamId: steam_id}) }}"
+       class="inline-flex items-center gap-2 text-steam-muted text-sm mb-8 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to library
+    </a>
+
+    {# Header #}
+    <div class="flex items-center gap-4 mb-8">
+        {% if player.avatarmedium is defined %}
+        <img src="{{ player.avatarmedium }}" alt="" class="w-12 h-12 rounded-full">
+        {% endif %}
+        <div>
+            <h1 class="text-2xl font-black text-white">Compare with a Friend</h1>
+            <p class="text-steam-muted text-sm mt-0.5">Select a friend to compare your libraries</p>
+        </div>
+    </div>
+
+    {% if friends is null %}
+        {# Private friend list #}
+        <div class="rounded-xl p-8 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.03);">
+            <div class="text-4xl mb-3">🔒</div>
+            <div class="text-white font-bold mb-1">Friend list is private</div>
+            <p class="text-steam-muted text-sm">Set your Steam friend list to public to use the compare feature.</p>
+            <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener"
+               class="inline-block mt-4 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
+               style="background:#1a9fff;">
+                Steam Privacy Settings ↗
+            </a>
+        </div>
+
+    {% elseif friends|length == 0 %}
+        <div class="rounded-xl p-8 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.03);">
+            <div class="text-steam-muted text-sm">No friends found on Steam.</div>
+        </div>
+
+    {% else %}
+        {# Search #}
+        <input type="text" id="friend-search" placeholder="Search friends…" oninput="filterFriends()"
+               class="w-full rounded-lg px-4 py-2.5 text-sm text-steam-light placeholder-steam-muted border border-white/10 outline-none focus:border-steam-blue transition-colors mb-6"
+               style="background:rgba(255,255,255,0.05);">
+
+        {% set with_library    = friends|filter(f => f.has_library) %}
+        {% set without_library = friends|filter(f => not f.has_library) %}
+
+        {# Friends with a library #}
+        {% if with_library|length > 0 %}
+        <div class="mb-2">
+            <div class="text-xs uppercase tracking-widest text-steam-muted mb-3 flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-steam-green"></span>
+                On Steam Game Tracker · {{ with_library|length }}
+            </div>
+            <div class="flex flex-col gap-2" id="friends-with">
+                {% for friend in with_library %}
+                <a href="{{ path('game_compare', {steamId: steam_id, friendSteamId: friend.steamid}) }}"
+                   class="friend-row flex items-center gap-4 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-steam-blue transition-all cursor-pointer group"
+                   style="background:rgba(255,255,255,0.03);"
+                   data-name="{{ friend.name|lower }}">
+                    <img src="{{ friend.avatar }}" alt="" class="w-10 h-10 rounded-full flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-white truncate group-hover:text-steam-blue transition-colors">{{ friend.name }}</div>
+                        {% if friend.now_playing %}
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="now-playing-dot"></span>
+                            <span class="text-xs truncate" style="color:#a4d007;">{{ friend.now_playing }}</span>
+                        </div>
+                        {% else %}
+                        <div class="text-xs text-steam-green mt-0.5">Has a library</div>
+                        {% endif %}
+                    </div>
+                    <div class="text-steam-muted group-hover:text-steam-blue transition-colors text-sm">
+                        Compare →
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Friends without a library #}
+        {% if without_library|length > 0 %}
+        <div class="mt-6">
+            <div class="text-xs uppercase tracking-widest text-steam-muted mb-3 flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full" style="background:#8f98a0;"></span>
+                Not on Steam Game Tracker · {{ without_library|length }}
+            </div>
+            <div class="flex flex-col gap-2" id="friends-without">
+                {% for friend in without_library %}
+                <div class="friend-row flex items-center gap-4 px-4 py-3 rounded-xl border border-white/[0.06]"
+                     style="background:rgba(255,255,255,0.02);opacity:0.7;"
+                     data-name="{{ friend.name|lower }}">
+                    <img src="{{ friend.avatar }}" alt="" class="w-10 h-10 rounded-full flex-shrink-0" style="filter:grayscale(0.5);">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-steam-light truncate">{{ friend.name }}</div>
+                        {% if friend.now_playing %}
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="now-playing-dot"></span>
+                            <span class="text-xs truncate" style="color:#a4d007;">{{ friend.now_playing }}</span>
+                        </div>
+                        {% else %}
+                        <div class="text-xs text-steam-muted mt-0.5">No library yet</div>
+                        {% endif %}
+                    </div>
+                    <button onclick="copyInviteLink(this)" data-name="{{ friend.name|e('html_attr') }}"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-steam-muted hover:text-white hover:border-white/30 transition-colors flex-shrink-0">
+                        Invite
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="no-friends" class="hidden text-center text-steam-muted py-12 text-sm">No friends match your search.</div>
+    {% endif %}
+
+</div>
+</div>
+
+<script>
+const INVITER_NAME = {{ (player.personaname ?? 'Someone')|json_encode|raw }};
+const INVITER_URL  = {{ url('game_library', {steamId: steam_id})|json_encode|raw }};
+
+function filterFriends() {
+    const q = document.getElementById('friend-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.friend-row');
+    let visible = 0;
+    rows.forEach(row => {
+        const show = row.dataset.name.includes(q);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('no-friends')?.classList.toggle('hidden', visible > 0);
+}
+
+function copyInviteLink(btn) {
+    const text = `Steam Game Tracker — track and manage your Steam backlog, and compare games with friends.\nCheck out ${INVITER_NAME}'s library and set up your own: ${INVITER_URL}`;
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.style.color = '#a4d007';
+        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+    });
+}
+</script>
+{% endblock %}

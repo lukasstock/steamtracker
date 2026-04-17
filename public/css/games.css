@@ -1,0 +1,89 @@
+/* ── Game cards ── */
+.game-card { transition: box-shadow 0.25s ease; }
+
+/* ── Status rings ── */
+.game-card[data-status="completed"] { box-shadow: 0 0 0 1px rgba(164,208,7,0.4),  0 4px 20px rgba(0,0,0,0.5); }
+.game-card[data-status="playing"]   { box-shadow: 0 0 0 1px rgba(26,159,255,0.4), 0 4px 20px rgba(0,0,0,0.5); }
+.game-card[data-status="dropped"]   { box-shadow: 0 0 0 1px rgba(239,68,68,0.35), 0 4px 20px rgba(0,0,0,0.5); }
+.game-card[data-status="on_hold"]   { box-shadow: 0 0 0 1px rgba(234,179,8,0.35), 0 4px 20px rgba(0,0,0,0.5); }
+
+/* ── Status-coloured hover glows ── */
+.game-card[data-status="completed"]:hover { box-shadow: 0 0 0 1px rgba(164,208,7,0.8),  0 16px 48px rgba(164,208,7,0.18); }
+.game-card[data-status="playing"]:hover   { box-shadow: 0 0 0 1px rgba(26,159,255,0.8), 0 16px 48px rgba(26,159,255,0.18); }
+.game-card[data-status="dropped"]:hover   { box-shadow: 0 0 0 1px rgba(239,68,68,0.7),  0 16px 48px rgba(239,68,68,0.14); }
+.game-card[data-status="on_hold"]:hover   { box-shadow: 0 0 0 1px rgba(234,179,8,0.7),  0 16px 48px rgba(234,179,8,0.14); }
+.game-card[data-status="unplayed"]:hover  { box-shadow: 0 0 0 1px rgba(255,255,255,0.18),0 16px 48px rgba(0,0,0,0.7); }
+
+/* ── Progress bar ── */
+#progress-bar {
+    background: linear-gradient(90deg, #1a9fff 0%, #a4d007 100%);
+    box-shadow: 0 0 16px rgba(26,159,255,0.35), 0 0 32px rgba(164,208,7,0.15);
+}
+
+/* ── Controls ── */
+.filter-btn { transition: all 0.15s ease; }
+select option { background: #1b2838; }
+
+/* ── Spotlight ── */
+.spotlight-card {
+    background: #111923;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.spotlight-card:hover { transform: scale(1.02); }
+.spotlight-card[data-status="completed"] { box-shadow: 0 0 0 1px rgba(164,208,7,0.5),  0 8px 40px rgba(164,208,7,0.12); }
+.spotlight-card[data-status="playing"]   { box-shadow: 0 0 0 1px rgba(26,159,255,0.5), 0 8px 40px rgba(26,159,255,0.12); }
+.spotlight-card[data-status="dropped"]   { box-shadow: 0 0 0 1px rgba(239,68,68,0.45), 0 8px 40px rgba(239,68,68,0.10); }
+.spotlight-card[data-status="on_hold"]   { box-shadow: 0 0 0 1px rgba(234,179,8,0.45), 0 8px 40px rgba(234,179,8,0.10); }
+.spotlight-card[data-status="unplayed"]  { box-shadow: 0 0 0 1px rgba(255,255,255,0.1),0 8px 32px rgba(0,0,0,0.5); }
+
+/* ── Surprise Me ── */
+@keyframes surprise-pulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(26,159,255,0.8), 0 0 40px rgba(26,159,255,0.4); }
+    50%       { box-shadow: 0 0 0 4px rgba(26,159,255,1),   0 0 80px rgba(26,159,255,0.7); }
+}
+.surprise-picked {
+    animation: surprise-pulse 0.9s ease-in-out 4;
+    position: relative;
+    z-index: 5;
+}
+.game-card.surprise-dimmed {
+    opacity: 0.18;
+    transition: opacity 0.35s ease;
+}
+
+/* ── Surprise Tinder Cards ── */
+.surprise-tinder-card {
+    background: #111923;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+.surprise-tinder-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 56px rgba(0,0,0,0.7), 0 0 0 1px rgba(26,159,255,0.5);
+}
+.surprise-tinder-card .stc-img img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+}
+.surprise-tinder-card .stc-info {
+    padding: 1rem;
+    flex: 1;
+    background: #0e1620;
+}
+
+/* ── Modal ── */
+.status-pill { transition: all 0.15s ease; cursor: pointer; }
+.star-btn    { transition: color 0.1s ease; cursor: pointer; font-size: 1.4rem; line-height: 1; }
+
+#modal-backdrop {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: opacity 0.2s ease;
+}
+#modal-box { transition: transform 0.2s ease, opacity 0.2s ease; }

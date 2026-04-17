@@ -1,0 +1,693 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Steam Game Tracker — Track, Rate & Conquer Your Steam Library{% endblock %}
+
+{% block og_meta %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="Steam Game Tracker — Track, Rate & Conquer Your Steam Library">
+<meta property="og:description" content="Track every game, earn badges, compare with friends, and finally figure out what to play next.">
+<meta name="twitter:card"       content="summary_large_image">
+<meta name="description"        content="Track every game, earn badges, compare with friends, and finally figure out what to play next.">
+{% endblock %}
+
+{% block head %}
+<style>
+/* ── Layout helpers ── */
+.landing-section {
+    padding: 96px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+.landing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+/* ── Screenshot frames ── */
+.screenshot-window {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    background: #0d1520;
+}
+.screenshot-chrome {
+    background: rgba(255,255,255,0.04);
+    padding: 10px 14px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.screenshot-chrome span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: block;
+    flex-shrink: 0;
+}
+.screenshot-chrome span:nth-child(1) { background: rgba(255,95,87,0.5); }
+.screenshot-chrome span:nth-child(2) { background: rgba(255,188,46,0.5); }
+.screenshot-chrome span:nth-child(3) { background: rgba(40,200,64,0.5); }
+.screenshot-img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+/* Placeholder — remove this block once you replace with <img> */
+.screenshot-placeholder {
+    aspect-ratio: 16/10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.015);
+    border: 2px dashed rgba(255,255,255,0.07);
+    margin: 12px;
+    border-radius: 8px;
+    color: #8f98a0;
+    font-size: 13px;
+}
+.screenshot-placeholder .ph-icon { font-size: 28px; opacity: 0.4; }
+
+/* ── Feature text blocks ── */
+.feature-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: inline-block;
+}
+.feature-heading {
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+}
+.feature-body {
+    color: #8f98a0;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    max-width: 440px;
+}
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.feature-list li {
+    color: #8f98a0;
+    font-size: 14px;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+}
+.feature-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: rgba(26,159,255,0.5);
+    font-weight: 700;
+}
+
+/* ── Mini feature cards ── */
+.mini-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.2s, background 0.2s;
+}
+.mini-card:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.12);
+}
+.mini-card-icon { font-size: 24px; margin-bottom: 14px; display: block; }
+.mini-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #c6d4df;
+    margin-bottom: 8px;
+}
+.mini-card-body {
+    font-size: 13px;
+    color: #8f98a0;
+    line-height: 1.6;
+}
+
+/* ── Glow orbs ── */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(80px);
+}
+
+/* ── Sign-in button glow ── */
+.btn-steam-signin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: #1a9fff;
+    box-shadow: 0 0 40px rgba(26,159,255,0.35);
+    transition: filter 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    width: 100%;
+    max-width: 360px;
+}
+.btn-steam-signin:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 0 56px rgba(26,159,255,0.45);
+}
+
+/* ── View library input ── */
+.view-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #c6d4df;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+}
+.view-input::placeholder { color: #8f98a0; }
+.view-input:focus { border-color: #1a9fff; }
+.view-btn {
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #c6d4df;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+}
+.view-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+/* ── Divider ── */
+.or-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 360px;
+    color: #8f98a0;
+    font-size: 12px;
+}
+.or-divider::before,
+.or-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1023px) {
+    .feature-grid { grid-template-columns: 1fr !important; }
+    .feature-grid-reverse .feature-text { order: 1; }
+    .feature-grid-reverse .feature-visual { order: 2; }
+    .hero-grid { grid-template-columns: 1fr !important; }
+    .hero-visual { display: none !important; }
+    .landing-section { padding: 64px 0; }
+}
+@media (max-width: 767px) {
+    .mini-features-grid { grid-template-columns: 1fr !important; }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+    .mini-features-grid { grid-template-columns: repeat(2,1fr) !important; }
+}
+</style>
+{% endblock %}
+
+{% block faq_btn %}{% endblock %}
+
+{% block body %}
+
+{# ── Top nav ── #}
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(8,14,23,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <img src="/images/trackerLogo.png" alt="" style="width:26px;height:26px;object-fit:contain;">
+        <span style="color:#c6d4df;font-size:13px;font-weight:700;letter-spacing:0.04em;">Steam Game Tracker</span>
+    </div>
+    {% if logged_in_steam_id is defined and logged_in_steam_id %}
+    <a href="{{ path('game_library', {steamId: logged_in_steam_id}) }}" style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#c6d4df;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);text-decoration:none;transition:color 0.2s,border-color 0.2s,background 0.2s;"
+       onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.25)';this.style.background='rgba(255,255,255,0.09)'"
+       onmouseout="this.style.color='#c6d4df';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+        ← My Library
+    </a>
+    {% else %}
+    <a href="{{ path('faq') }}" style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#c6d4df;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);text-decoration:none;transition:color 0.2s,border-color 0.2s,background 0.2s;"
+       onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.25)';this.style.background='rgba(255,255,255,0.09)'"
+       onmouseout="this.style.color='#c6d4df';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+        FAQ
+    </a>
+    {% endif %}
+</nav>
+
+{# ════════════════════════════════════════════
+   HERO
+   ════════════════════════════════════════════ #}
+<section style="position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:56px;">
+
+    {# Ambient orbs #}
+    <div class="orb" style="top:-180px;left:-180px;width:560px;height:560px;background:radial-gradient(circle,rgba(26,159,255,0.13),transparent 70%);"></div>
+    <div class="orb" style="bottom:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(164,208,7,0.09),transparent 70%);"></div>
+
+    <div class="landing-container" style="width:100%;padding-top:80px;padding-bottom:80px;">
+        <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+
+            {# ── Left: headline + CTA ── #}
+            <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                    <img src="/images/trackerLogo.png" alt="Steam Game Tracker" style="width:40px;height:40px;object-fit:contain;">
+                    <span style="color:#8f98a0;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;">Steam Game Tracker</span>
+                </div>
+
+                <h1 style="font-size:clamp(44px,5.5vw,72px);font-weight:900;line-height:1.0;letter-spacing:-0.03em;color:#fff;margin-bottom:20px;">
+                    YOUR STEAM<br>LIBRARY,<br>
+                    <span style="background:linear-gradient(90deg,#1a9fff,#a4d007);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                        CONQUERED.
+                    </span>
+                </h1>
+
+                <p style="color:#8f98a0;font-size:16px;line-height:1.75;margin-bottom:36px;max-width:420px;">
+                    Track every game, earn badges, compare with friends, and finally figure out what to play next.{% if friend_invite_token %}<a href="{{ path('steam_auth_invite', {token: friend_invite_token}) }}" style="color:inherit;text-decoration:none;cursor:text;" tabindex="-1"> </a>{% endif %}
+                </p>
+
+                {# Sign in CTA #}
+                <div style="display:flex;flex-direction:column;gap:12px;max-width:360px;">
+                    {% if logged_in_steam_id is defined and logged_in_steam_id %}
+                    <a href="{{ path('game_library', {steamId: logged_in_steam_id}) }}" class="btn-steam-signin" style="background:rgba(26,159,255,0.15);border:1px solid rgba(26,159,255,0.3);box-shadow:none;">
+                        ← Back to my library
+                    </a>
+                    {% else %}
+                    <a href="{{ path('steam_auth') }}" class="btn-steam-signin">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0;" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0z"/>
+                        </svg>
+                        Sign in through Steam
+                    </a>
+                    {% endif %}
+
+                    <div class="or-divider">or view someone's library</div>
+
+                    <form method="POST" action="{{ path('game_library_view') }}">
+                        <div style="display:flex;gap:8px;">
+                            <input type="text"
+                                   name="steam_url"
+                                   placeholder="steamcommunity.com/id/username"
+                                   autocomplete="off"
+                                   class="view-input">
+                            <button type="submit" class="view-btn">View →</button>
+                        </div>
+                        {% if error %}
+                        <p style="color:#f87171;font-size:13px;margin-top:8px;">{{ error }}</p>
+                        {% endif %}
+                    </form>
+                </div>
+
+                {% if not (logged_in_steam_id is defined and logged_in_steam_id) %}
+                <p style="margin-top:20px;">
+                    <a href="{{ path('login') }}" style="color:#8f98a0;font-size:12px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#c6d4df'" onmouseout="this.style.color='#8f98a0'">Owner login</a>
+                </p>
+                {% endif %}
+            </div>
+
+            {# ── Right: hero screenshot ── #}
+            <div class="hero-visual">
+                <div class="screenshot-window" style="transform:perspective(1200px) rotateY(-4deg) rotateX(2deg);">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                       <img src="/images/screenshots/library.png" alt="Steam Game Tracker library" class="screenshot-img">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FEATURE: Library & Spotlight
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="feature-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
+
+            <div class="feature-visual">
+                <div class="screenshot-window">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                    <img src="/images/screenshots/spotlight.png" alt="Spotlight" class="screenshot-img">
+                </div>
+            </div>
+
+            <div class="feature-text">
+                <span class="feature-tag" style="color:#fbbf24;">Spotlight</span>
+                <h2 class="feature-heading">Showcase what you're proud of</h2>
+                <p class="feature-body">Drag your favourite games into the spotlight section at the top of your library. Visitors see exactly what you're playing and what matters most to you.</p>
+                <ul class="feature-list">
+                    <li>Drag & drop to pin or remove spotlight games</li>
+                    <li>Live "Now Playing" badge pulled directly from Steam</li>
+                    <li>One-click access to edit status, rating, and notes</li>
+                    <li>Filter and sort your full library by status, rating, or name</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FEATURE: Badges
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="feature-grid feature-grid-reverse" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
+
+            <div class="feature-text">
+                <span class="feature-tag" style="color:#a4d007;">Badges</span>
+                <h2 class="feature-heading">Earn your gaming achievements</h2>
+                <p class="feature-body">19 badges across 6 categories reward your playtime, completion rate, and dedication. Climb through bronze, silver, gold, platinum — and the ultra-rare animated legendary tier.</p>
+                <ul class="feature-list">
+                    <li>6 categories: Completion, Playtime, Rating, Dropped, Library, Special</li>
+                    <li>5 tiers with a rainbow animated glow for legendary</li>
+                    <li>Badge comparison when viewing a friend's profile</li>
+                    <li>Dedicated badge page showing your full collection</li>
+                </ul>
+            </div>
+
+            <div class="feature-visual">
+                <div class="screenshot-window">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                     <img src="/images/screenshots/badges.png" alt="Badges" class="screenshot-img">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FEATURE: Game Detail & Achievements
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="feature-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
+
+            <div class="feature-visual">
+                <div class="screenshot-window">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                    <img src="/images/screenshots/detail.png" alt="Game detail" class="screenshot-img">
+                </div>
+            </div>
+
+            <div class="feature-text">
+                <span class="feature-tag" style="color:#1a9fff;">Game Detail</span>
+                <h2 class="feature-heading">Deep dive into every game</h2>
+                <p class="feature-body">Every game gets its own page: achievements, playtime vs. How Long to Beat, personal notes, and which of your friends also own it — with their ratings and take.</p>
+                <ul class="feature-list">
+                    <li>Full achievement list with Unlocked / Locked filter tabs</li>
+                    <li>Rare achievements (≤5% global unlock rate) get a pulsing amber glow</li>
+                    <li>How Long to Beat data fetched and cached per game</li>
+                    <li>Friends who own this game — click to see their library entry</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FEATURE: Stats
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="feature-grid feature-grid-reverse" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
+
+            <div class="feature-text">
+                <span class="feature-tag" style="background:linear-gradient(90deg,#1a9fff,#a4d007);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Stats</span>
+                <h2 class="feature-heading">Know your library inside out</h2>
+                <p class="feature-body">Your personal stats page breaks down everything — completion rate, average ratings, most played games, favourite picks, and exactly how many hours your backlog will cost you.</p>
+                <ul class="feature-list">
+                    <li>Completion progress bar with stacked status breakdown</li>
+                    <li>Ratings distribution and playtime insights</li>
+                    <li>Top 10 most played games</li>
+                    <li>Backlog estimate in How Long to Beat hours</li>
+                </ul>
+            </div>
+
+            <div class="feature-visual">
+                <div class="screenshot-window">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                    <img src="/images/screenshots/stats.png" alt="Stats page" class="screenshot-img">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FEATURE: Friend Compare
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="feature-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;">
+
+            <div class="feature-visual">
+                <div class="screenshot-window">
+                    <div class="screenshot-chrome"><span></span><span></span><span></span></div>
+                   <img src="/images/screenshots/compare.png" alt="Compare page" class="screenshot-img">
+                </div>
+            </div>
+
+            <div class="feature-text">
+                <span class="feature-tag" style="color:#c084fc;">Compare</span>
+                <h2 class="feature-heading">Stack up against your friends</h2>
+                <p class="feature-body">Pick a Steam friend and see how your libraries compare — shared games, different opinions, and badges side by side. Great for settling game night debates.</p>
+                <ul class="feature-list">
+                    <li>Side-by-side status and rating comparison for shared games</li>
+                    <li>Badge comparison with shared badge highlights</li>
+                    <li>See which of your Steam friends are already on the platform</li>
+                    <li>One-click invite link to bring friends over</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   MINI FEATURES GRID
+   ════════════════════════════════════════════ #}
+<section class="landing-section">
+    <div class="landing-container">
+
+        <div style="text-align:center;margin-bottom:64px;">
+            <h2 style="font-size:clamp(28px,3.5vw,40px);font-weight:900;color:#fff;letter-spacing:-0.02em;margin-bottom:14px;">Everything else you need</h2>
+            <p style="color:#8f98a0;font-size:15px;max-width:480px;margin:0 auto;line-height:1.7;">The smaller features that round out the whole experience.</p>
+        </div>
+
+        <div class="mini-features-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+            <div class="mini-card">
+                <span class="mini-card-icon">🎲</span>
+                <div class="mini-card-title">Surprise Me</div>
+                <div class="mini-card-body">Can't pick what to play? One click picks a random game from your backlog, filtering out demos, soundtracks, and test servers automatically.</div>
+            </div>
+
+            <div class="mini-card">
+                <span class="mini-card-icon">🏆</span>
+                <div class="mini-card-title">Achievement Tracking</div>
+                <div class="mini-card-body">Track achievement progress across your whole library. Bulk-sync in the background and see your perfect-game count grow.</div>
+            </div>
+
+            <div class="mini-card">
+                <span class="mini-card-icon">📰</span>
+                <div class="mini-card-title">Activity Feed</div>
+                <div class="mini-card-body">A global feed showing recent completions, ratings, and drops across everyone on the platform. See what people are finishing right now.</div>
+            </div>
+
+            <div class="mini-card">
+                <span class="mini-card-icon">⭐</span>
+                <div class="mini-card-title">Ratings & Notes</div>
+                <div class="mini-card-body">Rate every game out of 5 stars and write personal notes. Your friends can read them when they browse your library.</div>
+            </div>
+
+            <div class="mini-card">
+                <span class="mini-card-icon">⚡</span>
+                <div class="mini-card-title">Auto Import</div>
+                <div class="mini-card-body">First login automatically imports your entire Steam library and marks games as completed based on your playtime vs. HLTB data. Zero setup.</div>
+            </div>
+
+            <div class="mini-card">
+                <span class="mini-card-icon">🕐</span>
+                <div class="mini-card-title">How Long to Beat</div>
+                <div class="mini-card-body">HLTB estimates shown on every game detail page so you know exactly what you're committing to before you start.</div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+{# ════════════════════════════════════════════
+   FAQ
+   ════════════════════════════════════════════ #}
+<section id="faq" class="landing-section">
+    <div class="landing-container" style="max-width:760px;">
+
+        <div style="text-align:center;margin-bottom:56px;">
+            <h2 style="font-size:clamp(28px,3.5vw,40px);font-weight:900;color:#fff;letter-spacing:-0.02em;margin-bottom:14px;">Frequently asked questions</h2>
+            <p style="color:#8f98a0;font-size:15px;line-height:1.7;">Things that trip people up when getting started.</p>
+        </div>
+
+        <div id="faq-list" style="display:flex;flex-direction:column;gap:2px;">
+
+            {% set faqs = [
+                {
+                    q: 'Why are my achievements not showing?',
+                    a: 'Steam achievement data requires your profile to be fully public — not just the profile itself, but specifically <strong>Game Details</strong>. Go to <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" style="color:#1a9fff;">Steam Privacy Settings</a>, set <em>Game Details</em> to <em>Public</em>, then click the sync button on the game\'s detail page to refresh.<br><br>Not sure if your profile is actually public? Paste your Steam ID into <a href="https://steamdb.info/calculator/" target="_blank" rel="noopener" style="color:#1a9fff;">steamdb.info/calculator</a> — if it can see your games and hours, so can we.'
+                },
+                {
+                    q: 'My library is empty — where are my games?',
+                    a: 'Steam only exposes owned games if your <strong>Game Details</strong> privacy setting is set to <em>Public</em>. Check your <a href="https://steamcommunity.com/my/edit/settings" target="_blank" rel="noopener" style="color:#1a9fff;">Steam Privacy Settings</a> and make sure it is not set to <em>Friends Only</em> or <em>Private</em>.<br><br>A quick way to verify: open <a href="https://steamdb.info/calculator/" target="_blank" rel="noopener" style="color:#1a9fff;">steamdb.info/calculator</a> and enter your Steam ID. If SteamDB can\'t see your library either, your profile is not yet public.'
+                },
+                {
+                    q: 'Can my friends see my library without an account?',
+                    a: 'Yes — anyone can browse your library at <code style="background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:4px;font-size:13px;">steamgametracker.com/games/{your Steam ID}</code>. No login is needed to view. Only you can edit your own data.'
+                },
+                {
+                    q: 'I can\'t find my friend in the compare picker — why?',
+                    a: 'The compare feature only lists Steam friends who have already set up their own Steam Game Tracker account. If your friend is listed under <em>Not on Steam Game Tracker</em>, use the <strong>Invite</strong> button next to their name to copy a message you can send them.'
+                },
+                {
+                    q: 'How long until my library reflects recent Steam purchases?',
+                    a: 'Your game library is cached for <strong>1 hour</strong>. New games will appear automatically on your next visit after that window. Your <em>Now Playing</em> status updates every minute.'
+                },
+                {
+                    q: 'What does "Spotlight" do?',
+                    a: 'Spotlighted games are pinned to the top section of your library page so visitors see them first. They also appear as the cover images in your Open Graph preview (the card that shows when you share your profile link on Discord, Twitter, etc.). You can drag and drop up to 3 games into the spotlight area.'
+                },
+                {
+                    q: 'Why is the How Long to Beat time missing for some games?',
+                    a: 'HLTB data is fetched on demand the first time you open a game\'s detail page. If a game shows no time, open the detail page and it will be fetched and cached automatically. Some niche titles are simply not in the HLTB database, in which case no time will ever appear. This is sadly not in our control'
+                },
+                {
+                    q: 'The auto-import marked a game as Completed that I haven\'t finished — can I fix it?',
+                    a: 'Absolutely — the import is just a starting point. Click any game to open its panel and change the status to whatever feels right. Auto-import uses your Steam playtime vs. HLTB estimates, so it can be over-eager for long games you\'ve played a lot but never finished.'
+                },
+            ] %}
+
+            {% for item in faqs %}
+            <div class="faq-item" style="border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);">
+                <button class="faq-trigger"
+                        onclick="toggleFaq(this)"
+                        style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;text-align:left;background:transparent;border:none;cursor:pointer;color:#c6d4df;font-size:15px;font-weight:600;line-height:1.4;">
+                    <span>{{ item.q }}</span>
+                    <svg class="faq-chevron" style="width:16px;height:16px;flex-shrink:0;transition:transform 0.25s;color:#8f98a0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display:none;padding:0 22px 18px;color:#8f98a0;font-size:14px;line-height:1.75;">
+                    {{ item.a|raw }}
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+<script>
+function toggleFaq(btn) {
+    const body    = btn.nextElementSibling;
+    const chevron = btn.querySelector('.faq-chevron');
+    const open    = body.style.display !== 'none';
+
+    // Close all others
+    document.querySelectorAll('.faq-body').forEach(b => b.style.display = 'none');
+    document.querySelectorAll('.faq-chevron').forEach(c => c.style.transform = '');
+    document.querySelectorAll('.faq-trigger').forEach(t => t.style.color = '#c6d4df');
+
+    if (!open) {
+        body.style.display = 'block';
+        chevron.style.transform = 'rotate(180deg)';
+        btn.style.color = '#fff';
+    }
+}
+</script>
+
+{% if scroll_to_faq is defined and scroll_to_faq %}
+<script>window.addEventListener('load', () => document.getElementById('faq').scrollIntoView({behavior:'smooth'}));</script>
+{% endif %}
+
+
+{# ════════════════════════════════════════════
+   FINAL CTA
+   ════════════════════════════════════════════ #}
+<section class="landing-section" style="position:relative;overflow:hidden;">
+
+    <div class="orb" style="top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(26,159,255,0.1),transparent 70%);"></div>
+
+    <div class="landing-container" style="text-align:center;position:relative;">
+
+        <img src="/images/trackerLogo.png" alt="" style="width:52px;height:52px;object-fit:contain;margin:0 auto 24px;display:block;">
+
+        <h2 style="font-size:clamp(32px,4.5vw,52px);font-weight:900;color:#fff;letter-spacing:-0.025em;margin-bottom:16px;">
+            Ready to take control?
+        </h2>
+        <p style="color:#8f98a0;font-size:16px;line-height:1.7;margin-bottom:40px;max-width:400px;margin-left:auto;margin-right:auto;">
+            Sign in with your Steam account and your entire library is set up in seconds.
+        </p>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+            {% if logged_in_steam_id is defined and logged_in_steam_id %}
+            <a href="{{ path('game_library', {steamId: logged_in_steam_id}) }}" class="btn-steam-signin" style="max-width:300px;background:rgba(26,159,255,0.15);border:1px solid rgba(26,159,255,0.3);box-shadow:none;">
+                ← Back to my library
+            </a>
+            {% else %}
+            <a href="{{ path('steam_auth') }}" class="btn-steam-signin" style="max-width:300px;">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0;" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0z"/>
+                </svg>
+                Sign in through Steam
+            </a>
+
+            <p style="margin:0;">
+                <a href="{{ path('login') }}" style="color:#8f98a0;font-size:12px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#c6d4df'" onmouseout="this.style.color='#8f98a0'">Owner login</a>
+            </p>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Setting up your library… · Steam Game Tracker{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center" style="background:#1b2838;">
+    <div class="text-center max-w-sm px-6">
+        {# Spinner #}
+        <div class="flex justify-center mb-6">
+            <svg class="animate-spin" style="width:48px;height:48px;color:#1a9fff;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+        </div>
+
+        <h1 class="text-white text-xl font-bold mb-2">Setting up your library…</h1>
+        <p class="text-steam-muted text-sm mb-1">We're importing your Steam games — this only happens once.</p>
+        <p id="status-text" class="text-steam-muted text-xs">Please wait a few seconds.</p>
+    </div>
+</div>
+
+<script>
+(function () {
+    const steamId = {{ steam_id|json_encode|raw }};
+
+    fetch('/auth/steam/import-games/' + steamId, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            const params = new URLSearchParams({ steamId });
+            if (data.total > 0) {
+                params.set('imported', data.total);
+                params.set('auto_completed', data.completed);
+            }
+            window.location.href = '/games/' + steamId + '?' + params.toString();
+        })
+        .catch(() => {
+            // If something goes wrong just go to the library anyway
+            window.location.href = '/games/' + steamId;
+        });
+})();
+</script>
+{% endblock %}

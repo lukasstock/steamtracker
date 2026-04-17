@@ -1,0 +1,441 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ game.name }} · {{ player.personaname is defined ? player.personaname ~ "'s Library" : 'Steam Game Tracker' }}{% endblock %}
+
+{% block head %}
+<style>
+@keyframes rare-pulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(251,191,36,0.4), 0 0 16px rgba(251,191,36,0.15); }
+    50%       { box-shadow: 0 0 12px rgba(251,191,36,0.65), 0 0 28px rgba(251,191,36,0.25); }
+}
+.ach-icon-rare { animation: rare-pulse 2.5s ease-in-out infinite; border-radius: 6px; }
+.ach-row-rare  { border-color: rgba(251,191,36,0.22) !important; background: rgba(251,191,36,0.025) !important; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+
+    {# ── Hero (compact) ── #}
+    {% set heroStatus = completion ? completion.status.value : 'unplayed' %}
+    <div class="relative overflow-hidden" style="height:160px;">
+        <div class="absolute inset-0"
+             style="background-image:url('https://cdn.cloudflare.steamstatic.com/steam/apps/{{ app_id }}/library_hero.jpg'),url('https://cdn.cloudflare.steamstatic.com/steam/apps/{{ app_id }}/header.jpg');background-size:cover;background-position:center;filter:blur(8px) brightness(0.3);transform:scale(1.08);"></div>
+        <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(27,40,56,0) 0%,rgba(27,40,56,0.92) 100%);"></div>
+
+        <div class="relative max-w-5xl mx-auto px-4 h-full flex items-end pb-5">
+            <div class="flex items-end gap-4 w-full">
+                <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ app_id }}/header.jpg"
+                     alt="{{ game.name }}"
+                     class="rounded-lg flex-shrink-0 shadow-xl hidden sm:block"
+                     style="width:138px;height:65px;object-fit:cover;border:1px solid rgba(255,255,255,0.1);">
+                <div class="flex-1 min-w-0 pb-0.5">
+                    <h1 class="text-2xl font-black text-white leading-tight truncate">{{ game.name }}</h1>
+                    <div class="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                        {% if player.personaname is defined %}
+                        <div class="flex items-center gap-1.5">
+                            <img src="{{ player.avatarmedium }}" alt="" class="w-4 h-4 rounded-full">
+                            <span class="text-xs text-steam-muted">{{ player.personaname }}</span>
+                        </div>
+                        {% endif %}
+                        {% if heroStatus != 'unplayed' %}
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                              style="{% if heroStatus == 'completed' %}background:rgba(164,208,7,0.18);color:#a4d007;{% elseif heroStatus == 'playing' %}background:rgba(26,159,255,0.18);color:#1a9fff;{% elseif heroStatus == 'dropped' %}background:rgba(248,113,113,0.18);color:#f87171;{% else %}background:rgba(251,191,36,0.18);color:#fbbf24;{% endif %}">
+                            {% if heroStatus == 'completed' %}✓ Completed{% elseif heroStatus == 'playing' %}▶ Playing{% elseif heroStatus == 'dropped' %}✕ Dropped{% else %}⏸ On Hold{% endif %}
+                        </span>
+                        {% endif %}
+                        {% if completion and completion.rating %}
+                        <span class="text-xs" style="color:#fbbf24;letter-spacing:1px;">{%- for i in 1..5 -%}{{ i <= completion.rating ? '★' : '☆' }}{%- endfor -%}</span>
+                        {% endif %}
+                        {% if game.playtime_hrs > 0 %}
+                        <span class="text-xs text-steam-muted">{{ game.playtime_hrs }}h played</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4">
+
+        {# ── Back + Steam link ── #}
+        <div class="flex items-center justify-between py-3.5 border-b border-white/[0.06]">
+            <a href="{{ path('game_library', {steamId: steam_id}) }}"
+               class="inline-flex items-center gap-1.5 text-sm text-steam-muted hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to library
+            </a>
+            <a href="https://store.steampowered.com/app/{{ app_id }}" target="_blank" rel="noopener"
+               class="text-xs text-steam-muted hover:text-white transition-colors">
+                View on Steam ↗
+            </a>
+        </div>
+
+        {# ── Main content ── #}
+        <div class="py-6 flex flex-col lg:flex-row gap-6">
+
+            {# ── LEFT ── #}
+            <div class="flex-1 min-w-0 flex flex-col gap-5">
+
+                {# Playtime + HLTB/Completed row #}
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-xl p-4 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                        <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">Playtime</div>
+                        <div class="text-sm font-bold text-white">
+                            {{ game.playtime_hrs > 0 ? game.playtime_hrs ~ 'h' : '—' }}
+                        </div>
+                    </div>
+                    {% if completion and completion.completedAt %}
+                    <div class="rounded-xl p-4 border border-white/[0.06]" style="background:rgba(164,208,7,0.05);">
+                        <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">Completed</div>
+                        <div class="text-sm font-bold text-steam-green">{{ completion.completedAt|date('M j, Y') }}</div>
+                    </div>
+                    {% elseif hltb and hltb.hoursMain %}
+                    <div class="rounded-xl p-4 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                        <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">HLTB</div>
+                        <div class="text-sm font-bold text-white">~{{ hltb.hoursMain }}h main</div>
+                    </div>
+                    {% else %}
+                    <div class="rounded-xl p-4 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                        <div class="text-xs text-steam-muted uppercase tracking-widest mb-1.5">HLTB</div>
+                        <div class="text-sm text-steam-muted">Unknown</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Notes — editable for owner, read-only for others #}
+                {% if is_owner %}
+                <div class="rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted px-5 py-3.5 border-b border-white/[0.06]">Notes</h3>
+                    <div class="px-5 py-4">
+                        <textarea id="notes-textarea" rows="4"
+                                  placeholder="Your thoughts on this game…"
+                                  class="w-full rounded-lg px-3 py-2.5 text-sm text-steam-light placeholder-steam-muted border border-white/10 outline-none focus:border-steam-blue resize-none transition-colors"
+                                  style="background:rgba(0,0,0,0.3);">{{ completion ? (completion.notes ?? '') : '' }}</textarea>
+                        <button id="notes-save-btn" onclick="saveNotes()"
+                                class="mt-2.5 px-4 py-2 rounded-lg text-xs font-bold text-white transition-colors"
+                                style="background:#1a9fff;">
+                            Save Notes
+                        </button>
+                    </div>
+                </div>
+                {% elseif completion and completion.notes and completion.isNotesPublic %}
+                <div class="rounded-2xl p-5 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted mb-3">Notes</h3>
+                    <p class="text-steam-light text-sm leading-relaxed whitespace-pre-wrap">{{ completion.notes }}</p>
+                </div>
+                {% endif %}
+
+                {# Activity log #}
+                {% if activity_log|length > 0 %}
+                <div class="rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted px-5 py-3.5 border-b border-white/[0.06]">Activity History</h3>
+                    <div class="flex flex-col divide-y divide-white/[0.04]">
+                    {% for entry in activity_log %}
+                    {% if entry.type == 'completed' %}
+                        {% set eColor = '#a4d007' %}{% set eLabel = 'Completed' %}
+                    {% elseif entry.type == 'dropped' %}
+                        {% set eColor = '#f87171' %}{% set eLabel = 'Dropped' %}
+                    {% else %}
+                        {% set eColor = '#fbbf24' %}{% set eLabel = 'Rated' %}
+                    {% endif %}
+                    <div class="flex items-center gap-3 px-5 py-3">
+                        <div class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:{{ eColor }};"></div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-semibold" style="color:{{ eColor }};">{{ eLabel }}</span>
+                            {% if entry.metadata %}
+                                {% if entry.metadata.rating is defined %}
+                                <span class="text-xs ml-2" style="color:#fbbf24;">
+                                    {%- for i in 1..5 -%}<span style="opacity:{{ i <= entry.metadata.rating ? '1' : '0.3' }};">★</span>{%- endfor -%}
+                                </span>
+                                {% endif %}
+                                {% if entry.metadata.notes is defined and entry.metadata.notes %}
+                                <p class="text-xs text-steam-muted mt-0.5 italic truncate">"{{ entry.metadata.notes }}"</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="text-xs text-steam-muted flex-shrink-0">{{ entry.createdAt|date('M j, Y') }}</div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            {# ── RIGHT: Achievements + Friends ── #}
+            <div class="lg:w-72 flex-shrink-0 flex flex-col gap-4">
+
+                {% if has_achievements is null %}
+                <div class="rounded-2xl p-5 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.02);">
+                    <div class="text-2xl mb-2">🏆</div>
+                    <div class="text-sm font-semibold text-white mb-1">Achievements not synced</div>
+                    <p class="text-xs text-steam-muted leading-relaxed">
+                        Go to your library and hit <span class="text-white">"Sync Achievements"</span> to load progress for this game.
+                    </p>
+                </div>
+
+                {% elseif has_achievements == false %}
+                <div class="rounded-2xl p-5 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.02);">
+                    <div class="text-xs text-steam-muted">This game has no achievements.</div>
+                </div>
+
+                {% else %}
+                {% set achTotal    = ach_cache.totalCount %}
+                {% set achUnlocked = ach_cache.unlockedCount %}
+                {% set achPct      = achTotal > 0 ? (achUnlocked / achTotal * 100)|round(1) : 0 %}
+                {% set isPerfect   = achUnlocked == achTotal %}
+
+                <div class="rounded-2xl p-5 border border-white/[0.06]" style="background:rgba(255,255,255,0.02);{% if isPerfect %}border-color:rgba(251,191,36,0.3);{% endif %}">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted">Achievements</h3>
+                        {% if isPerfect %}
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(251,191,36,0.15);color:#fbbf24;">🏆 Perfect</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="text-4xl font-black text-white">{{ achUnlocked }}<span class="text-xl text-steam-muted font-normal">/{{ achTotal }}</span></div>
+                        <div class="text-xs text-steam-muted mt-1">{{ achPct }}% complete</div>
+                    </div>
+
+                    <div class="rounded-full overflow-hidden" style="height:8px;background:rgba(255,255,255,0.07);">
+                        <div class="h-full rounded-full transition-all"
+                             style="width:{{ achPct }}%;background:{% if isPerfect %}linear-gradient(90deg,#fbbf24,#a4d007){% else %}#1a9fff{% endif %};"></div>
+                    </div>
+
+                    {% if ach_cache.rareAchievements %}
+                    <div class="mt-4 pt-4 border-t border-white/[0.06]">
+                        <div class="text-xs text-steam-muted uppercase tracking-widest mb-2.5">Rare unlocked</div>
+                        <div class="flex flex-col gap-2">
+                        {% for rare in ach_cache.rareAchievements %}
+                        <div class="flex items-center gap-2.5">
+                            {% if rare.icon %}
+                            <img src="{{ rare.icon }}" alt="" class="w-8 h-8 flex-shrink-0 ach-icon-rare">
+                            {% else %}
+                            <div class="w-8 h-8 rounded flex-shrink-0" style="background:rgba(255,255,255,0.06);"></div>
+                            {% endif %}
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-semibold text-white truncate">{{ rare.displayName }}</div>
+                                <div class="text-xs" style="color:#fbbf24;">{{ rare.globalPercent }}% of players</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {# Friends who own this game #}
+                {% if friends_who_own|length > 0 %}
+                <div class="rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-steam-muted px-5 py-3.5 border-b border-white/[0.06]">Friends who own this game</h3>
+                    <div class="flex flex-col divide-y divide-white/[0.04]">
+                    {% for friend in friends_who_own %}
+                    <a href="{{ path('game_detail', {steamId: friend.steamId, appId: app_id}) }}"
+                       class="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors">
+                        {% if friend.summary.avatarmedium is defined %}
+                        <img src="{{ friend.summary.avatarmedium }}" alt="" class="w-8 h-8 rounded-full flex-shrink-0">
+                        {% else %}
+                        <div class="w-8 h-8 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);"></div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-semibold text-white truncate">{{ friend.summary.personaname ?? 'Unknown' }}</div>
+                            {% if friend.summary.gameextrainfo is defined and friend.summary.gameextrainfo %}
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="now-playing-dot"></span>
+                                <span class="text-xs truncate" style="color:#a4d007;">{{ friend.summary.gameextrainfo }}</span>
+                            </div>
+                            {% endif %}
+                            {% if friend.completion %}
+                            {% set fc = friend.completion %}
+                            {% set fs = fc.status.value %}
+                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                {% if fc.rating %}
+                                <span class="text-xs" style="color:#fbbf24;">
+                                    {%- for i in 1..5 -%}{{ i <= fc.rating ? '★' : '☆' }}{%- endfor -%}
+                                </span>
+                                {% endif %}
+                                {% if fs != 'unplayed' %}
+                                <span class="text-xs font-medium"
+                                      style="{% if fs == 'completed' %}color:#a4d007;{% elseif fs == 'playing' %}color:#1a9fff;{% elseif fs == 'dropped' %}color:#f87171;{% else %}color:#fbbf24;{% endif %}">
+                                    {% if fs == 'completed' %}✓ Done{% elseif fs == 'playing' %}▶ Playing{% elseif fs == 'dropped' %}✕ Dropped{% else %}⏸ On Hold{% endif %}
+                                </span>
+                                {% endif %}
+                                {% if not fc.rating and fs == 'unplayed' %}
+                                <span class="text-xs text-steam-muted">Untracked</span>
+                                {% endif %}
+                            </div>
+                            {% if fc.notes and fc.isNotesPublic %}
+                            <p class="text-xs text-steam-muted italic truncate mt-0.5">"{{ fc.notes|slice(0, 40) }}{% if fc.notes|length > 40 %}…{% endif %}"</p>
+                            {% endif %}
+                            {% else %}
+                            <div class="text-xs text-steam-muted mt-0.5">Not tracked yet</div>
+                            {% endif %}
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px;flex-shrink:0;color:#8f98a0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                    {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        {# ── Full Achievement List ── #}
+        {% if achievements|length > 0 %}
+        <div class="pb-10">
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-steam-muted mb-4">All Achievements</h2>
+
+            {% set unlockedCount = achievements|filter(a => a.achieved)|length %}
+            {% set lockedCount   = achievements|length - unlockedCount %}
+            <div class="flex gap-2 mb-4">
+                <button onclick="filterAch('all', this)"
+                        class="ach-tab px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                        style="background:rgba(26,159,255,0.2);color:#1a9fff;border-color:rgba(26,159,255,0.4);">
+                    All {{ achievements|length }}
+                </button>
+                <button onclick="filterAch('unlocked', this)"
+                        class="ach-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10"
+                        style="background:rgba(255,255,255,0.04);color:#8f98a0;">
+                    Unlocked {{ unlockedCount }}
+                </button>
+                <button onclick="filterAch('locked', this)"
+                        class="ach-tab px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10"
+                        style="background:rgba(255,255,255,0.04);color:#8f98a0;">
+                    Locked {{ lockedCount }}
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-1.5" id="ach-list">
+            {% for ach in achievements %}
+            {% set isRare = ach.globalPercent is not null and ach.globalPercent <= 5 and ach.achieved %}
+            <div class="ach-row flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.04] transition-colors hover:border-white/[0.1]{{ isRare ? ' ach-row-rare' : '' }}"
+                 style="background:rgba(255,255,255,0.02);"
+                 data-achieved="{{ ach.achieved ? '1' : '0' }}">
+
+                {# Icon #}
+                <div class="flex-shrink-0 relative">
+                    {% if ach.icon or ach.icongray %}
+                    <img src="{{ ach.achieved ? ach.icon : ach.icongray }}"
+                         alt=""
+                         class="w-10 h-10 rounded{{ isRare ? ' ach-icon-rare' : '' }}"
+                         style="{% if not ach.achieved %}opacity:0.45;{% endif %}">
+                    {% else %}
+                    <div class="w-10 h-10 rounded flex items-center justify-center text-lg"
+                         style="background:rgba(255,255,255,0.05);">🏅</div>
+                    {% endif %}
+                    {% if ach.achieved %}
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+                         style="background:#a4d007;">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="width:8px;height:8px;" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Name + description #}
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold leading-snug"
+                         style="{% if isRare %}color:#fde68a;{% elseif ach.achieved %}color:#fff;{% else %}color:#8f98a0;{% endif %}">
+                        {{ ach.name }}
+                    </div>
+                    {% if ach.description %}
+                    <div class="text-xs text-steam-muted mt-0.5 leading-relaxed">{{ ach.description }}</div>
+                    {% endif %}
+                </div>
+
+                {# Rarity + unlock date #}
+                <div class="flex-shrink-0 text-right">
+                    {% if ach.globalPercent is not null %}
+                    <div class="text-xs font-semibold"
+                         style="{% if ach.globalPercent <= 5 %}color:#fbbf24;{% elseif ach.globalPercent <= 15 %}color:#8f98a0;{% else %}color:rgba(143,152,160,0.6);{% endif %}">
+                        {{ ach.globalPercent|round(1) }}%
+                    </div>
+                    {% endif %}
+                    {% if ach.achieved and ach.unlocktime > 0 %}
+                    <div class="text-xs text-steam-muted mt-0.5">{{ ach.unlocktime|date('M j, Y') }}</div>
+                    {% elseif not ach.achieved %}
+                    <div class="text-xs" style="color:rgba(143,152,160,0.5);">Locked</div>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% if is_owner %}
+<script>
+const _detail = {
+    steamId:  '{{ steam_id }}',
+    appId:    {{ app_id }},
+    appName:  {{ game.name|json_encode }},
+    status:   '{{ completion ? completion.status.value : 'unplayed' }}',
+    rating:   {{ completion and completion.rating ? completion.rating : 0 }},
+    spotlight: {{ (completion is not null and completion.isSpotlight()) ? 'true' : 'false' }},
+};
+
+async function saveNotes() {
+    const textarea = document.getElementById('notes-textarea');
+    const btn      = document.getElementById('notes-save-btn');
+    const notes    = textarea.value;
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+        const resp = await fetch(`/games/${_detail.steamId}/${_detail.appId}/update`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+                status:   _detail.status,
+                rating:   _detail.rating,
+                notes:    notes,
+                spotlight: _detail.spotlight,
+                app_name: _detail.appName,
+            }),
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        btn.textContent   = 'Saved!';
+        btn.style.background = '#a4d007';
+        setTimeout(() => { btn.textContent = 'Save Notes'; btn.style.background = '#1a9fff'; }, 2000);
+    } catch {
+        btn.textContent = 'Error — try again';
+        btn.style.background = '#ef4444';
+        setTimeout(() => { btn.textContent = 'Save Notes'; btn.style.background = '#1a9fff'; }, 2000);
+    }
+
+    btn.disabled = false;
+}
+</script>
+{% endif %}
+
+<script>
+function filterAch(filter, btn) {
+    document.querySelectorAll('.ach-tab').forEach(t => {
+        t.style.background  = 'rgba(255,255,255,0.04)';
+        t.style.color       = '#8f98a0';
+        t.style.borderColor = 'rgba(255,255,255,0.1)';
+    });
+    btn.style.background  = 'rgba(26,159,255,0.2)';
+    btn.style.color       = '#1a9fff';
+    btn.style.borderColor = 'rgba(26,159,255,0.4)';
+
+    document.querySelectorAll('.ach-row').forEach(row => {
+        if (filter === 'all') {
+            row.style.display = '';
+        } else if (filter === 'unlocked') {
+            row.style.display = row.dataset.achieved === '1' ? '' : 'none';
+        } else {
+            row.style.display = row.dataset.achieved === '0' ? '' : 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

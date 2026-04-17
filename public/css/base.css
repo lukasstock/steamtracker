@@ -1,0 +1,19 @@
+body {
+    background-color: #080e17;
+    background-image: radial-gradient(rgba(26, 159, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+}
+
+@keyframes now-playing-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(164,208,7,0.5); }
+    50%       { opacity: 0.7; box-shadow: 0 0 0 3px rgba(164,208,7,0); }
+}
+.now-playing-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #a4d007;
+    flex-shrink: 0;
+    animation: now-playing-pulse 1.8s ease-in-out infinite;
+}

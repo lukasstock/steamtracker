@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Steam Game Tracker{% endblock %}
+
+{% block body %}
+<div class="max-w-md mx-auto px-4 py-20">
+
+    <h1 class="text-3xl font-black tracking-tight text-white leading-none mb-2">
+        GAME
+        <span style="background:linear-gradient(90deg,#1a9fff,#a4d007);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+            LIBRARY
+        </span>
+    </h1>
+    <p class="text-steam-muted text-sm mb-10">Enter your Steam profile URL to set up your personal tracker.</p>
+
+    <form method="POST">
+        <label class="block text-xs uppercase tracking-widest text-steam-muted mb-2">
+            Steam Profile URL or ID
+        </label>
+        <input type="text"
+               name="steam_url"
+               placeholder="https://steamcommunity.com/id/yourname"
+               autocomplete="off"
+               autofocus
+               class="w-full rounded-lg px-4 py-3 text-sm text-steam-light placeholder-steam-muted border border-white/10 outline-none focus:border-steam-blue transition-colors mb-3"
+               style="background:rgba(255,255,255,0.05);">
+
+        {% if error %}
+        <p class="text-red-400 text-sm mb-3">{{ error }}</p>
+        {% endif %}
+
+        <button type="submit"
+                class="w-full py-3 rounded-lg text-sm font-bold text-white transition-opacity hover:opacity-90"
+                style="background:#1a9fff;">
+            Get Started →
+        </button>
+    </form>
+
+    <p class="text-steam-muted text-xs mt-6 leading-relaxed">
+        Your Steam profile must be set to <strong class="text-steam-light">public</strong>.
+        Your tracker is saved in this browser — bookmark your library page to keep access.
+    </p>
+
+</div>
+{% endblock %}
