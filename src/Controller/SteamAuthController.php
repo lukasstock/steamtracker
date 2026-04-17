@@ -242,4 +242,13 @@ class SteamAuthController extends AbstractController
 
         return ['total' => $total, 'completed' => $completed];
     }
+
+    #[Route('/logout', name: 'logout', methods: ['GET'])]
+    public function logout(Request $request): Response
+    {
+        $request->getSession()->invalidate();
+        $response = $this->redirectToRoute('game_library_home');
+        $this->userTokenService->clearTokenCookie($response);
+        return $response;
+    }
 }

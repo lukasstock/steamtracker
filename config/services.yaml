@@ -9,7 +9,6 @@
 parameters:
     steam_api_key: '%env(STEAM_API_KEY)%'
     steam_id: '%env(STEAM_ID)%'
-    app_password: '%env(APP_PASSWORD)%'
 
 services:
     # default configuration for services in *this* file
@@ -36,12 +35,3 @@ services:
     App\Command\SteamFindGameCommand:
         arguments:
             $steamId: '%steam_id%'
-
-    App\Controller\LoginController:
-        arguments:
-            $appPassword: '%app_password%'
-            $steamId: '%steam_id%'
-
-    App\Controller\SteamAuthController:
-        arguments:
-            $inviteToken: '%env(default::FRIEND_INVITE_TOKEN)%'

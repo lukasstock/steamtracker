@@ -327,11 +327,6 @@
                     </form>
                 </div>
 
-                {% if not (logged_in_steam_id is defined and logged_in_steam_id) %}
-                <p style="margin-top:20px;">
-                    <a href="{{ path('login') }}" style="color:#8f98a0;font-size:12px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#c6d4df'" onmouseout="this.style.color='#8f98a0'">Owner login</a>
-                </p>
-                {% endif %}
             </div>
 
             {# ── Right: hero screenshot ── #}
@@ -681,9 +676,6 @@ function toggleFaq(btn) {
                 Sign in through Steam
             </a>
 
-            <p style="margin:0;">
-                <a href="{{ path('login') }}" style="color:#8f98a0;font-size:12px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#c6d4df'" onmouseout="this.style.color='#8f98a0'">Owner login</a>
-            </p>
             {% endif %}
         </div>
 

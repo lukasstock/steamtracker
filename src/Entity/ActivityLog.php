@@ -8,6 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ActivityLogRepository::class)]
 #[ORM\Table(name: 'activity_log')]
 #[ORM\Index(columns: ['created_at'], name: 'idx_created_at')]
+#[ORM\Index(columns: ['steam_id'], name: 'idx_steam_id')]
+#[ORM\Index(columns: ['user_token', 'app_id'], name: 'idx_user_token_app_id')]
 class ActivityLog
 {
     #[ORM\Id]
