@@ -15,7 +15,10 @@
         "symfony/monolog-bundle": "^4.0",
         "symfony/runtime": "8.0.*",
         "symfony/twig-bundle": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "symfony/yaml": "8.0.*",
+        "doctrine/doctrine-bundle": "^3.2.2",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.6.3"
     },
     "config": {
         "allow-plugins": {
@@ -71,9 +74,6 @@
         }
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^3.2",
-        "doctrine/doctrine-migrations-bundle": "^4.0",
-        "doctrine/orm": "^3.6",
         "symfony/maker-bundle": "^1.67"
     }
 }
