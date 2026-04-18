@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Feedback & Bug Reports · Steam Game Tracker{% endblock %}
+
+{% block og_meta %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="Feedback & Bug Reports · Steam Game Tracker">
+<meta property="og:description" content="Share feedback or report bugs for Steam Game Tracker.">
+<meta name="twitter:card"       content="summary">
+<meta name="description"        content="Share feedback or report bugs for Steam Game Tracker.">
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+
+    <div class="border-b border-white/[0.06]" style="background:linear-gradient(135deg,rgba(26,159,255,0.06) 0%,rgba(164,208,7,0.04) 100%);">
+        <div class="max-w-2xl mx-auto px-4 py-8">
+            {% if my_profile %}
+            <a href="{{ path('game_library', {steamId: my_profile.steamId}) }}"
+               class="inline-flex items-center gap-2 text-steam-muted text-sm mb-4 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to library
+            </a>
+            {% else %}
+            <a href="{{ path('app_home') }}"
+               class="inline-flex items-center gap-2 text-steam-muted text-sm mb-4 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to home
+            </a>
+            {% endif %}
+            <h1 class="text-2xl font-black text-white">Feedback & Bug Reports</h1>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 py-10">
+
+        {# Developer note #}
+        <div class="rounded-2xl border border-steam-blue/20 px-6 py-5 mb-8"
+             style="background:rgba(26,159,255,0.05);">
+            <p class="text-steam-light text-sm leading-relaxed">
+                <span class="font-bold text-white">steamgametracker.com is my first website project</span> — so please feel free to give feedback or report bugs.
+                If your feedback makes sense I will include it ASAP and credit you on the
+                <a href="{{ path('contributors') }}" style="color:#1a9fff;" class="hover:underline">contributors page</a>.
+            </p>
+        </div>
+
+        {% if success %}
+        {# Success state #}
+        <div class="rounded-2xl border border-white/[0.06] p-12 text-center" style="background:rgba(255,255,255,0.02);">
+            <div style="font-size:2.5rem;line-height:1;margin-bottom:1rem;">🙏</div>
+            <div class="text-white font-bold text-lg mb-2">Thanks for your feedback!</div>
+            <p class="text-steam-muted text-sm mb-6">I'll take a look and get back to you if you left an email. Good stuff gets added and credited.</p>
+            <a href="{{ path('feedback') }}"
+               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+               style="background:rgba(255,255,255,0.06);color:#c6d4df;border:1px solid rgba(255,255,255,0.1);">
+                Submit another
+            </a>
+        </div>
+
+        {% else %}
+        {# Form #}
+        <form method="POST" action="{{ path('feedback_submit') }}" class="flex flex-col gap-5">
+
+            {# Honeypot #}
+            <input type="text" name="website" value="" style="display:none;" tabindex="-1" autocomplete="off">
+
+            {# Type #}
+            <div class="flex gap-3">
+                {% for val, label in {'bug': '🐛 Bug Report', 'feedback': '💬 Feedback', 'feature': '✨ Feature Request'} %}
+                <label class="flex-1 cursor-pointer">
+                    <input type="radio" name="type" value="{{ val }}" class="sr-only peer" {% if val == 'feedback' %}checked{% endif %}>
+                    <div class="text-center px-3 py-2.5 rounded-xl text-xs font-semibold border transition-colors peer-checked:text-white"
+                         style="background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.1);color:#8f98a0;"
+                         id="type-label-{{ val }}">
+                        {{ label }}
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            {# Name #}
+            <div>
+                <label class="block text-xs font-semibold text-steam-muted uppercase tracking-wider mb-2">Your name <span style="color:#f87171;">*</span></label>
+                <input type="text" name="name" required maxlength="100" placeholder="How should I credit you?"
+                       class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-steam-muted outline-none transition-colors"
+                       style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);"
+                       onfocus="this.style.borderColor='rgba(26,159,255,0.5)'"
+                       onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+            </div>
+
+            {# Email #}
+            <div>
+                <label class="block text-xs font-semibold text-steam-muted uppercase tracking-wider mb-2">Email <span class="font-normal normal-case" style="color:#8f98a0;">(optional — only for follow-up)</span></label>
+                <input type="email" name="email" maxlength="150" placeholder="you@example.com"
+                       class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-steam-muted outline-none transition-colors"
+                       style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);"
+                       onfocus="this.style.borderColor='rgba(26,159,255,0.5)'"
+                       onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+            </div>
+
+            {# Message #}
+            <div>
+                <label class="block text-xs font-semibold text-steam-muted uppercase tracking-wider mb-2">Message <span style="color:#f87171;">*</span></label>
+                <textarea name="message" required maxlength="5000" rows="6"
+                          placeholder="Describe the bug or share your feedback..."
+                          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-steam-muted outline-none transition-colors resize-none"
+                          style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);"
+                          onfocus="this.style.borderColor='rgba(26,159,255,0.5)'"
+                          onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+            </div>
+
+            <button type="submit"
+                    class="self-start px-6 py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    style="background:#1a9fff;">
+                Send feedback
+            </button>
+        </form>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+// Highlight selected type radio visually
+document.querySelectorAll('input[name="type"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="type"]').forEach(function(r) {
+            var label = document.getElementById('type-label-' + r.value);
+            if (label) {
+                label.style.background    = 'rgba(255,255,255,0.03)';
+                label.style.borderColor   = 'rgba(255,255,255,0.1)';
+                label.style.color         = '#8f98a0';
+            }
+        });
+        var active = document.getElementById('type-label-' + this.value);
+        if (active) {
+            active.style.background  = 'rgba(26,159,255,0.15)';
+            active.style.borderColor = 'rgba(26,159,255,0.4)';
+            active.style.color       = '#fff';
+        }
+    });
+    // Set initial state
+    if (radio.checked) radio.dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %}

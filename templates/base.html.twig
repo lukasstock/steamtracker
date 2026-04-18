@@ -45,6 +45,15 @@
 <body class="text-steam-light min-h-screen">
     {% block body %}{% endblock %}
     {% block faq_btn %}
+    <a href="/feedback"
+       title="Report a bug or give feedback"
+       style="position:fixed;bottom:72px;left:24px;z-index:200;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(14,22,32,0.9);border:1px solid rgba(255,255,255,0.12);text-decoration:none;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.4);transition:border-color 0.2s,background 0.2s;"
+       onmouseover="this.style.borderColor='rgba(26,159,255,0.5)';this.style.background='rgba(26,159,255,0.12)'"
+       onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(14,22,32,0.9)'">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;color:#8f98a0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2l1.5 1.5"/><path d="M14.5 3.5L16 2"/><path d="M9 7.5A5 5 0 0 1 19 10v2a5 5 0 0 1-10 0V10A5 5 0 0 1 9 7.5z"/><path d="M5 10h2"/><path d="M17 10h2"/><path d="M7.5 17.5L5 20"/><path d="M16.5 17.5L19 20"/><path d="M9 14h6"/>
+        </svg>
+    </a>
     <a href="/faq"
        style="position:fixed;bottom:24px;left:24px;z-index:200;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.04em;color:#c6d4df;background:rgba(14,22,32,0.9);border:1px solid rgba(255,255,255,0.12);text-decoration:none;backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.4);transition:color 0.2s,border-color 0.2s;"
        onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.3)'"
