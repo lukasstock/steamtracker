@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /auth/
+Disallow: /logout
+Disallow: /leaderboard/opt-in
+
+Sitemap: https://steamgametracker.com/sitemap.xml

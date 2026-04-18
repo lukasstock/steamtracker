@@ -37,7 +37,9 @@
             }
         }
     </script>
+    <link rel="canonical" href="{{ app.request.schemeAndHttpHost ~ app.request.pathInfo }}">
     <link rel="stylesheet" href="/css/base.css">
+    {% block jsonld %}{% endblock %}
     {% block head %}{% endblock %}
 </head>
 <body class="text-steam-light min-h-screen">

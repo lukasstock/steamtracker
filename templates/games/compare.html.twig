@@ -1,7 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {{ player_a.personaname ?? 'Player' }} vs {{ player_b.personaname ?? 'Player' }} · Steam Game Tracker
+{% block title %}{{ player_a.personaname ?? 'Player' }} vs {{ player_b.personaname ?? 'Player' }} · Steam Game Tracker{% endblock %}
+
+{% block og_meta %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="{{ player_a.personaname ?? 'Player' }} vs {{ player_b.personaname ?? 'Player' }} · Steam Game Tracker">
+<meta property="og:description" content="Head-to-head Steam library comparison — completions, playtime, ratings and badges side by side.">
+<meta name="twitter:card"       content="summary">
+<meta name="description"        content="Head-to-head Steam library comparison between {{ player_a.personaname ?? 'Player' }} and {{ player_b.personaname ?? 'Player' }} on Steam Game Tracker.">
 {% endblock %}
 
 {% block head %}
@@ -75,7 +82,7 @@
     <div class="flex items-center justify-center gap-6 mb-8">
         <div class="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
             {% if player_a.avatarmedium is defined %}
-            <img src="{{ player_a.avatarmedium }}" alt="" class="w-16 h-16 rounded-full ring-2 ring-steam-blue">
+            <img src="{{ player_a.avatarmedium }}" alt="{{ player_a.personaname ?? 'Player A' }}" class="w-16 h-16 rounded-full ring-2 ring-steam-blue">
             {% endif %}
             <div class="text-white font-bold truncate w-full">{{ player_a.personaname ?? 'You' }}</div>
             {% if player_a.gameextrainfo is defined and player_a.gameextrainfo %}
@@ -86,11 +93,11 @@
             {% endif %}
         </div>
 
-        <div class="text-2xl font-black text-steam-muted flex-shrink-0">VS</div>
+        <h1 class="text-2xl font-black text-steam-muted flex-shrink-0">VS</h1>
 
         <div class="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
             {% if player_b.avatarmedium is defined %}
-            <img src="{{ player_b.avatarmedium }}" alt="" class="w-16 h-16 rounded-full ring-2 ring-white/20">
+            <img src="{{ player_b.avatarmedium }}" alt="{{ player_b.personaname ?? 'Player B' }}" class="w-16 h-16 rounded-full ring-2 ring-white/20">
             {% endif %}
             <div class="text-white font-bold truncate w-full">{{ player_b.personaname ?? 'Friend' }}</div>
             {% if player_b.gameextrainfo is defined and player_b.gameextrainfo %}

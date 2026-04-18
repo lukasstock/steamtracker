@@ -2,6 +2,21 @@
 
 {% block title %}Steam Game Tracker - Track, Rate & Conquer Your Steam Library{% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Steam Game Tracker",
+  "url": "https://steamgametracker.com",
+  "description": "Track every game in your Steam library, earn badges, compare with friends, and finally figure out what to play next.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+}
+</script>
+{% endblock %}
+
 {% block og_meta %}
 <meta property="og:site_name"   content="Steam Game Tracker">
 <meta property="og:type"        content="website">
@@ -247,7 +262,7 @@
 {# ── Top nav ── #}
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(8,14,23,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);">
     <div style="display:flex;align-items:center;gap:10px;">
-        <img src="/images/trackerLogo.png" alt="" style="width:26px;height:26px;object-fit:contain;">
+        <img src="/images/trackerLogo.png" alt="Steam Game Tracker logo" style="width:26px;height:26px;object-fit:contain;">
         <span style="color:#c6d4df;font-size:13px;font-weight:700;letter-spacing:0.04em;">Steam Game Tracker</span>
     </div>
     {% if logged_in_steam_id is defined and logged_in_steam_id %}
@@ -353,7 +368,7 @@
             <div class="feature-visual">
                 <div class="screenshot-window">
                     <div class="screenshot-chrome"><span></span><span></span><span></span></div>
-                    <img src="/images/screenshots/spotlight.png" alt="Spotlight" class="screenshot-img">
+                    <img src="/images/screenshots/spotlight.png" alt="Spotlight feature showing pinned favourite games with drag and drop" class="screenshot-img">
                 </div>
             </div>
 
@@ -396,7 +411,7 @@
             <div class="feature-visual">
                 <div class="screenshot-window">
                     <div class="screenshot-chrome"><span></span><span></span><span></span></div>
-                     <img src="/images/screenshots/badges.png" alt="Badges" class="screenshot-img">
+                     <img src="/images/screenshots/badges.png" alt="Badge collection page showing 19 collectible badges across 6 categories" class="screenshot-img">
                 </div>
             </div>
 
@@ -415,7 +430,7 @@
             <div class="feature-visual">
                 <div class="screenshot-window">
                     <div class="screenshot-chrome"><span></span><span></span><span></span></div>
-                    <img src="/images/screenshots/detail.png" alt="Game detail" class="screenshot-img">
+                    <img src="/images/screenshots/detail.png" alt="Game detail page showing achievements, playtime and personal notes" class="screenshot-img">
                 </div>
             </div>
 
@@ -458,7 +473,7 @@
             <div class="feature-visual">
                 <div class="screenshot-window">
                     <div class="screenshot-chrome"><span></span><span></span><span></span></div>
-                    <img src="/images/screenshots/stats.png" alt="Stats page" class="screenshot-img">
+                    <img src="/images/screenshots/stats.png" alt="Library stats page showing completion rate, playtime and favourite games" class="screenshot-img">
                 </div>
             </div>
 
@@ -477,7 +492,7 @@
             <div class="feature-visual">
                 <div class="screenshot-window">
                     <div class="screenshot-chrome"><span></span><span></span><span></span></div>
-                   <img src="/images/screenshots/compare.png" alt="Compare page" class="screenshot-img">
+                   <img src="/images/screenshots/compare.png" alt="Friend comparison page showing side-by-side library stats and shared games" class="screenshot-img">
                 </div>
             </div>
 
@@ -654,7 +669,7 @@ function toggleFaq(btn) {
 
     <div class="landing-container" style="text-align:center;position:relative;">
 
-        <img src="/images/trackerLogo.png" alt="" style="width:52px;height:52px;object-fit:contain;margin:0 auto 24px;display:block;">
+        <img src="/images/trackerLogo.png" alt="Steam Game Tracker logo" style="width:52px;height:52px;object-fit:contain;margin:0 auto 24px;display:block;">
 
         <h2 style="font-size:clamp(32px,4.5vw,52px);font-weight:900;color:#fff;letter-spacing:-0.025em;margin-bottom:16px;">
             Ready to take control?

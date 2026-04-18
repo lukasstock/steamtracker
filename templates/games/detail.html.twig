@@ -2,6 +2,17 @@
 
 {% block title %}{{ game.name }} · {{ player.personaname is defined ? player.personaname ~ "'s Library" : 'Steam Game Tracker' }}{% endblock %}
 
+{% block og_meta %}
+{% set og_desc = player.personaname is defined ? player.personaname ~ "'s take on " ~ game.name ~ " — status, rating, notes and achievements." : game.name ~ " — track your status, rating, notes and achievements on Steam Game Tracker." %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="{{ game.name }} · {{ player.personaname is defined ? player.personaname ~ "'s Library" : 'Steam Game Tracker' }}">
+<meta property="og:description" content="{{ og_desc }}">
+<meta property="og:image"       content="https://cdn.cloudflare.steamstatic.com/steam/apps/{{ app_id }}/header.jpg">
+<meta name="twitter:card"       content="summary_large_image">
+<meta name="description"        content="{{ og_desc }}">
+{% endblock %}
+
 {% block head %}
 <style>
 @keyframes rare-pulse {
@@ -211,7 +222,7 @@
                         {% for rare in ach_cache.rareAchievements %}
                         <div class="flex items-center gap-2.5">
                             {% if rare.icon %}
-                            <img src="{{ rare.icon }}" alt="" class="w-8 h-8 flex-shrink-0 ach-icon-rare">
+                            <img src="{{ rare.icon }}" alt="{{ rare.displayName }}" class="w-8 h-8 flex-shrink-0 ach-icon-rare">
                             {% else %}
                             <div class="w-8 h-8 rounded flex-shrink-0" style="background:rgba(255,255,255,0.06);"></div>
                             {% endif %}
@@ -236,7 +247,7 @@
                     <a href="{{ path('game_detail', {steamId: friend.steamId, appId: app_id}) }}"
                        class="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors">
                         {% if friend.summary.avatarmedium is defined %}
-                        <img src="{{ friend.summary.avatarmedium }}" alt="" class="w-8 h-8 rounded-full flex-shrink-0">
+                        <img src="{{ friend.summary.avatarmedium }}" alt="{{ friend.summary.personaname ?? '' }}" class="w-8 h-8 rounded-full flex-shrink-0">
                         {% else %}
                         <div class="w-8 h-8 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);"></div>
                         {% endif %}

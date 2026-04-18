@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Steam Game Tracker{% endblock %}
+{% block title %}{{ (player.personaname is defined ? player.personaname : 'A Gamer') ~ "'s Steam Library · Steam Game Tracker" }}{% endblock %}
 
 {% block og_meta %}
 {% set og_title = (player.personaname is defined ? player.personaname : 'A Gamer') ~ "'s Steam Library · Steam Game Tracker" %}
@@ -19,6 +19,24 @@
 <meta name="twitter:description" content="{{ og_desc }}">
 <meta name="twitter:image"       content="{{ og_image }}">
 <meta name="description"         content="{{ og_desc }}">
+{% endblock %}
+
+{% block jsonld %}
+{% if player.personaname is defined %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "name": "{{ player.personaname }}'s Steam Library",
+  "url": "{{ app.request.uri }}",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "{{ player.personaname }}",
+    "image": "{{ player.avatarfull ?? player.avatarmedium ?? '' }}"
+  }
+}
+</script>
+{% endif %}
 {% endblock %}
 
 {% block head %}

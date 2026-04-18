@@ -2,6 +2,15 @@
 
 {% block title %}Global Leaderboard · Steam Game Tracker{% endblock %}
 
+{% block og_meta %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="Global Leaderboard · Steam Game Tracker">
+<meta property="og:description" content="Who's played the most? Who's completed the most games? See the global Steam Game Tracker leaderboard.">
+<meta name="twitter:card"       content="summary">
+<meta name="description"        content="Who's played the most? Who's completed the most games? See the global Steam Game Tracker leaderboard.">
+{% endblock %}
+
 {% block body %}
 <div class="min-h-screen" style="background:#1b2838;">
 
@@ -107,7 +116,7 @@
                         <a href="{{ path('game_library', {steamId: entry.profile.steamId}) }}"
                            class="flex items-center gap-3 hover:opacity-80 transition-opacity" style="text-decoration:none;">
                             {% if entry.player and entry.player.avatarmedium is defined %}
-                            <img src="{{ entry.player.avatarmedium }}" alt=""
+                            <img src="{{ entry.player.avatarmedium }}" alt="{{ entry.player.personaname ?? '' }}"
                                  style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);flex-shrink:0;">
                             {% else %}
                             <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">

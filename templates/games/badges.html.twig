@@ -2,6 +2,16 @@
 
 {% block title %}{{ player.personaname is defined ? player.personaname ~ "'s" : 'Badges' }} Badges · Steam Game Tracker{% endblock %}
 
+{% block og_meta %}
+{% set og_name = player.personaname is defined ? player.personaname ~ "'s" : 'My' %}
+<meta property="og:site_name"   content="Steam Game Tracker">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="{{ og_name }} Badges · Steam Game Tracker">
+<meta property="og:description" content="Check out {{ og_name }} earned badges on Steam Game Tracker — awarded for playtime, completions, ratings and more.">
+<meta name="twitter:card"       content="summary">
+<meta name="description"        content="Check out {{ og_name }} earned badges on Steam Game Tracker — awarded for playtime, completions, ratings and more.">
+{% endblock %}
+
 {% block head %}
 <style>
 @keyframes legendary-glow {
