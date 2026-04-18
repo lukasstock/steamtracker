@@ -9,6 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
 
 class FeedbackController extends AbstractController
@@ -17,6 +19,8 @@ class FeedbackController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly UserProfileRepository $userProfileRepository,
         private readonly UserTokenService $userTokenService,
+        private readonly MailerInterface $mailer,
+        private readonly string $mailerFrom,
     ) {}
 
     #[Route('/feedback', name: 'feedback', methods: ['GET'])]
@@ -57,6 +61,26 @@ class FeedbackController extends AbstractController
 
         $this->em->persist($submission);
         $this->em->flush();
+
+        $typeLabels = ['bug' => 'Bug Report', 'feedback' => 'Feedback', 'feature' => 'Feature Request'];
+        $typeLabel  = $typeLabels[$type] ?? $type;
+
+        try {
+            $emailMessage = (new Email())
+                ->from($this->mailerFrom)
+                ->to($this->mailerFrom)
+                ->replyTo($email ?? $this->mailerFrom)
+                ->subject("[{$typeLabel}] {$name} via steamgametracker.com")
+                ->text(implode("\n\n", [
+                    "Type: {$typeLabel}",
+                    "Name: {$name}",
+                    "Email: " . ($email ?? 'not provided'),
+                    "Message:\n{$message}",
+                ]));
+            $this->mailer->send($emailMessage);
+        } catch (\Exception) {
+            // Submission is saved to DB even if email fails
+        }
 
         return $this->redirectToRoute('feedback', ['success' => 1]);
     }

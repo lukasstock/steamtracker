@@ -35,3 +35,7 @@ services:
     App\Command\SteamFindGameCommand:
         arguments:
             $steamId: '%steam_id%'
+
+    App\Controller\FeedbackController:
+        arguments:
+            $mailerFrom: '%env(MAILER_FROM)%'
