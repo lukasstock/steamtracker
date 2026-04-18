@@ -4,7 +4,7 @@
 
 {% block og_meta %}
 {% set og_title = (player.personaname is defined ? player.personaname : 'A Gamer') ~ "'s Steam Library · Steam Game Tracker" %}
-{% set og_desc  = counts.completed ~ ' completed · ' ~ counts.playing ~ ' playing · ' ~ total ~ ' games tracked' %}
+{% set og_desc  = (steam_id == '76561198088051125' ? 'Top 0.3% of Steam users · ' : '') ~ counts.completed ~ ' completed · ' ~ counts.playing ~ ' playing · ' ~ total ~ ' games tracked' %}
 {% set og_image = app.request.schemeAndHttpHost ~ '/games/' ~ steam_id ~ '/og-image' %}
 <meta property="og:site_name"    content="Steam Game Tracker">
 <meta property="og:type"         content="website">
