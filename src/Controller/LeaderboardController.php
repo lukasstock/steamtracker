@@ -8,6 +8,7 @@ use App\Service\SteamApiService;
 use App\Service\UserTokenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,17 +21,17 @@ class LeaderboardController extends AbstractController
         private readonly SteamApiService $steamApiService,
         private readonly UserTokenService $userTokenService,
         private readonly EntityManagerInterface $em,
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
     ) {}
 
     #[Route('/leaderboard', name: 'leaderboard', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $token = $this->userTokenService->getToken($request);
+        $token     = $this->userTokenService->getToken($request);
         $myProfile = $token ? $this->userProfileRepository->findOneBy(['userToken' => $token]) : null;
 
         $profiles = $this->userProfileRepository->findBy(['showInLeaderboard' => true]);
-
-        $entries = [];
+        $entries  = [];
 
         if (!empty($profiles)) {
             $tokens   = array_map(fn($p) => $p->getUserToken(), $profiles);
@@ -71,6 +72,24 @@ class LeaderboardController extends AbstractController
                     'completed_count' => $completed,
                     'total_owned'     => $totalOwned,
                     'completion_rate' => $completionRate,
+                    'is_fake'         => false,
+                ];
+            }
+        }
+
+        // Merge fake entries from seed file
+        $fakePath = $this->projectDir . '/config/seeds/fake_leaderboard.json';
+        if (file_exists($fakePath)) {
+            $fakeData = json_decode(file_get_contents($fakePath), true) ?? [];
+            foreach ($fakeData as $fake) {
+                $entries[] = [
+                    'profile'         => null,
+                    'player'          => ['personaname' => $fake['name']],
+                    'playtime_hours'  => $fake['playtime_hours'],
+                    'completed_count' => $fake['completed_count'],
+                    'total_owned'     => $fake['total_owned'],
+                    'completion_rate' => $fake['completion_rate'],
+                    'is_fake'         => true,
                 ];
             }
         }

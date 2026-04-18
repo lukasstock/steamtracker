@@ -1,0 +1,44 @@
+[
+  {
+    "name": "xX_Backlog_King_Xx",
+    "playtime_hours": 5847.3,
+    "completed_count": 9,
+    "total_owned": 423,
+    "completion_rate": 2.1
+  },
+  {
+    "name": "pixelwanderer",
+    "playtime_hours": 1203.5,
+    "completed_count": 41,
+    "total_owned": 118,
+    "completion_rate": 34.7
+  },
+  {
+    "name": "NightOwlGamer",
+    "playtime_hours": 3621.0,
+    "completed_count": 28,
+    "total_owned": 204,
+    "completion_rate": 13.7
+  },
+  {
+    "name": "VoidRunner_77",
+    "playtime_hours": 7184.2,
+    "completed_count": 71,
+    "total_owned": 389,
+    "completion_rate": 18.3
+  },
+  {
+    "name": "cozy.completionist",
+    "playtime_hours": 890.8,
+    "completed_count": 63,
+    "total_owned": 97,
+    "completion_rate": 64.9
+  },
+  {
+    "name": "steam_wanderer",
+    "playtime_hours": 2156.4,
+    "completed_count": 19,
+    "total_owned": 167,
+    "completion_rate": 11.4
+  }
+]
