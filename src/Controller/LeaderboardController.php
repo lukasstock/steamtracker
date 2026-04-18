@@ -84,7 +84,7 @@ class LeaderboardController extends AbstractController
             foreach ($fakeData as $fake) {
                 $entries[] = [
                     'profile'         => null,
-                    'player'          => ['personaname' => $fake['name']],
+                    'player'          => ['personaname' => $fake['name'], 'avatarmedium' => $fake['avatarmedium'] ?? null],
                     'playtime_hours'  => $fake['playtime_hours'],
                     'completed_count' => $fake['completed_count'],
                     'total_owned'     => $fake['total_owned'],
