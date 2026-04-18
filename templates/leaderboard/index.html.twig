@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Global Leaderboard · Steam Game Tracker{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" style="background:#1b2838;">
+
+    {# ── Hero header ── #}
+    <div class="border-b border-white/[0.06]" style="background:linear-gradient(135deg,rgba(26,159,255,0.06) 0%,rgba(164,208,7,0.04) 100%);">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            {% if my_profile %}
+            <a href="{{ path('game_library', {steamId: my_profile.steamId}) }}"
+               class="inline-flex items-center gap-2 text-steam-muted text-sm mb-4 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back to library
+            </a>
+            {% endif %}
+            <h1 class="text-2xl font-black text-white">Global Leaderboard</h1>
+            <p class="text-steam-muted text-sm mt-1">See how everyone stacks up across the site</p>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+
+        {# ── Opt-in card ── #}
+        {% if my_profile %}
+        <div class="rounded-2xl border border-white/[0.06] px-5 py-4 mb-6 flex items-center justify-between gap-4"
+             style="background:rgba(255,255,255,0.02);">
+            <div>
+                <div class="text-white text-sm font-semibold mb-0.5">Leaderboard participation</div>
+                <div class="text-steam-muted text-xs">Your data is only visible to other users of this site. Opt-in is off by default.</div>
+            </div>
+            <form method="POST" action="{{ path('leaderboard_opt_in') }}" class="flex-shrink-0" id="optin-form">
+                <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                    <span class="text-steam-muted text-sm whitespace-nowrap">Include me in the leaderboard</span>
+                    <div class="relative" style="width:40px;height:24px;">
+                        <input type="checkbox" name="show_in_leaderboard" value="1"
+                               id="leaderboard-toggle"
+                               {% if my_profile.showInLeaderboard %}checked{% endif %}
+                               onchange="this.form.submit()"
+                               style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0;z-index:1;">
+                        <div id="toggle-track"
+                             style="position:absolute;inset:0;border-radius:12px;transition:background 0.2s,border-color 0.2s;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);"></div>
+                        <div id="toggle-thumb"
+                             style="position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:50%;background:#8f98a0;transition:transform 0.2s,background 0.2s;{% if my_profile.showInLeaderboard %}transform:translateX(16px);background:#1a9fff;{% endif %}"></div>
+                    </div>
+                </label>
+            </form>
+        </div>
+        {% endif %}
+
+        {# ── Empty state ── #}
+        {% if entries is empty %}
+        <div class="rounded-2xl p-12 border border-white/[0.06] text-center" style="background:rgba(255,255,255,0.02);">
+            <div style="font-size:3rem;line-height:1;margin-bottom:1rem;">🏆</div>
+            <div class="text-white font-bold text-lg mb-2">No one on the leaderboard yet</div>
+            <p class="text-steam-muted text-sm">
+                {% if my_profile %}
+                    Be the first — opt in using the toggle above.
+                {% else %}
+                    <a href="{{ path('steam_auth') }}" style="color:#1a9fff;" class="hover:underline">Sign in with Steam</a> and opt in to appear here.
+                {% endif %}
+            </p>
+        </div>
+
+        {% else %}
+
+        {# ── Sort tabs ── #}
+        <div class="flex items-center gap-2 mb-5">
+            <span class="text-steam-muted text-xs font-semibold uppercase tracking-wider mr-1">Sort by</span>
+            <button id="sort-playtime" onclick="sortLeaderboard('playtime')"
+                    class="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors">
+                Playtime
+            </button>
+            <button id="sort-completion" onclick="sortLeaderboard('completion')"
+                    class="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors">
+                Completion Rate
+            </button>
+        </div>
+
+        {# ── Leaderboard table ── #}
+        <div class="rounded-2xl border border-white/[0.06] overflow-hidden" style="background:rgba(255,255,255,0.02);">
+            <table class="w-full" style="border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                        <th class="text-left text-steam-muted text-xs font-semibold uppercase tracking-wider px-5 py-3" style="width:48px;">#</th>
+                        <th class="text-left text-steam-muted text-xs font-semibold uppercase tracking-wider px-4 py-3">Player</th>
+                        <th class="text-right text-steam-muted text-xs font-semibold uppercase tracking-wider px-4 py-3">Playtime</th>
+                        <th class="text-right text-steam-muted text-xs font-semibold uppercase tracking-wider px-4 py-3">Completed</th>
+                        <th class="text-right text-steam-muted text-xs font-semibold uppercase tracking-wider px-5 py-3">Completion Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                {% for entry in entries %}
+                <tr class="leaderboard-row"
+                    data-playtime="{{ entry.playtime_hours }}"
+                    data-completion="{{ entry.completion_rate }}"
+                    style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;cursor:default;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td class="px-5 py-4">
+                        <span class="rank-num font-bold text-sm" style="color:#8f98a0;">{{ loop.index }}</span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <a href="{{ path('game_library', {steamId: entry.profile.steamId}) }}"
+                           class="flex items-center gap-3 hover:opacity-80 transition-opacity" style="text-decoration:none;">
+                            {% if entry.player and entry.player.avatarmedium is defined %}
+                            <img src="{{ entry.player.avatarmedium }}" alt=""
+                                 style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);flex-shrink:0;">
+                            {% else %}
+                            <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;color:#8f98a0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            {% endif %}
+                            <span class="text-white text-sm font-semibold">
+                                {{ entry.player.personaname ?? 'Unknown Player' }}
+                            </span>
+                        </a>
+                    </td>
+                    <td class="px-4 py-4 text-right">
+                        <span class="text-sm font-semibold" style="color:#c6d4df;">{{ entry.playtime_hours|number_format(0) }}h</span>
+                    </td>
+                    <td class="px-4 py-4 text-right">
+                        <span class="text-sm">
+                            <span class="font-semibold" style="color:#a4d007;">{{ entry.completed_count }}</span>
+                            <span class="text-xs" style="color:#8f98a0;"> / {{ entry.total_owned }}</span>
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-right">
+                        <span class="text-sm font-bold"
+                              style="color:{% if entry.completion_rate >= 50 %}#a4d007{% elseif entry.completion_rate >= 25 %}#1a9fff{% else %}#8f98a0{% endif %};">
+                            {{ entry.completion_rate }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-xs mt-4 text-center" style="color:#8f98a0;">
+            Playtime and game counts are fetched from Steam. Completion counts reflect data tracked on this site.
+        </p>
+
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+(function () {
+    var currentSort = null;
+
+    var sortStyles = {
+        active: { background: 'rgba(26,159,255,0.2)', color: '#1a9fff', border: '1px solid rgba(26,159,255,0.4)' },
+        inactive: { background: 'rgba(255,255,255,0.05)', color: '#8f98a0', border: '1px solid rgba(255,255,255,0.1)' }
+    };
+
+    function applyStyle(el, style) {
+        el.style.background  = style.background;
+        el.style.color       = style.color;
+        el.style.border      = style.border;
+    }
+
+    window.sortLeaderboard = function (metric) {
+        if (currentSort === metric) return;
+        currentSort = metric;
+
+        var tbody = document.getElementById('leaderboard-body');
+        if (!tbody) return;
+
+        var rows = Array.from(tbody.querySelectorAll('.leaderboard-row'));
+        var key  = metric === 'playtime' ? 'playtime' : 'completion';
+
+        rows.sort(function (a, b) {
+            return (parseFloat(b.dataset[key]) || 0) - (parseFloat(a.dataset[key]) || 0);
+        });
+
+        rows.forEach(function (row, i) {
+            row.querySelector('.rank-num').textContent = i + 1;
+            tbody.appendChild(row);
+        });
+
+        applyStyle(document.getElementById('sort-playtime'),   metric === 'playtime'   ? sortStyles.active : sortStyles.inactive);
+        applyStyle(document.getElementById('sort-completion'), metric === 'completion' ? sortStyles.active : sortStyles.inactive);
+    };
+
+    // Initial sort
+    sortLeaderboard('playtime');
+
+    // Reflect toggle state visually when checkbox changes
+    var toggle = document.getElementById('leaderboard-toggle');
+    var track  = document.getElementById('toggle-track');
+    var thumb  = document.getElementById('toggle-thumb');
+    if (toggle && track && thumb) {
+        toggle.addEventListener('change', function () {
+            if (this.checked) {
+                track.style.background    = 'rgba(26,159,255,0.25)';
+                track.style.borderColor   = 'rgba(26,159,255,0.4)';
+                thumb.style.transform     = 'translateX(16px)';
+                thumb.style.background    = '#1a9fff';
+            } else {
+                track.style.background    = 'rgba(255,255,255,0.06)';
+                track.style.borderColor   = 'rgba(255,255,255,0.1)';
+                thumb.style.transform     = 'translateX(0)';
+                thumb.style.background    = '#8f98a0';
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}
