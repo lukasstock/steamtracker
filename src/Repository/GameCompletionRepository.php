@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\GameCompletion;
+use App\Enum\GameStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -57,6 +58,35 @@ class GameCompletionRepository extends ServiceEntityRepository
             $map[$completion->getUserToken()] = $completion;
         }
         return $map;
+    }
+
+    /**
+     * Returns count of completed games per userToken for the given set of tokens.
+     *
+     * @param string[] $userTokens
+     * @return array<string, int> keyed by userToken
+     */
+    public function getCompletedCountsByTokens(array $userTokens): array
+    {
+        if (empty($userTokens)) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('gc')
+            ->select('gc.userToken, COUNT(gc.id) as completedCount')
+            ->where('gc.userToken IN (:tokens)')
+            ->andWhere('gc.status = :status')
+            ->setParameter('tokens', $userTokens)
+            ->setParameter('status', GameStatus::Completed)
+            ->groupBy('gc.userToken')
+            ->getQuery()
+            ->getResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['userToken']] = (int) $row['completedCount'];
+        }
+        return $result;
     }
 
     /**

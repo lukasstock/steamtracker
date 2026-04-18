@@ -26,6 +26,9 @@ class UserProfile
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $showInLeaderboard = false;
+
     public function getId(): int
     {
         return $this->id;
@@ -72,6 +75,17 @@ class UserProfile
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function isShowInLeaderboard(): bool
+    {
+        return $this->showInLeaderboard;
+    }
+
+    public function setShowInLeaderboard(bool $showInLeaderboard): static
+    {
+        $this->showInLeaderboard = $showInLeaderboard;
         return $this;
     }
 }
