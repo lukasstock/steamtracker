@@ -288,24 +288,25 @@ function updateSpotlightSection() {
     const empty = document.getElementById('spotlight-empty');
     if (!grid) return;
 
-    const spotlightCards = Array.from(document.querySelectorAll('.game-card[data-spotlight="1"]'));
+    const spotlightAppIds = new Set(
+        Array.from(document.querySelectorAll('.game-card[data-spotlight="1"]')).map(c => c.dataset.appid)
+    );
 
-    grid.innerHTML = '';
-    spotlightCards.forEach(card => {
-        const img = card.querySelector('img');
-        const sc  = buildSpotlightCard(
-            card.dataset.appid,
-            card.querySelector('.text-sm.font-semibold')?.textContent.trim() || '',
-            img?.src || '',
-            card.dataset.status,
-            parseInt(card.dataset.rating) || 0,
-            card.dataset.notes || '',
-            card.dataset.notesPublic === '1'
-        );
-        grid.appendChild(sc);
+    // Remove cards that are no longer spotlighted (preserves bindings on remaining cards)
+    grid.querySelectorAll('.spotlight-card').forEach(sc => {
+        if (!spotlightAppIds.has(sc.dataset.appid)) sc.remove();
     });
 
-    if (empty) empty.style.display = spotlightCards.length === 0 ? '' : 'none';
+    // Add cards that became spotlighted but aren't in the grid yet
+    const existingInGrid = new Set(Array.from(grid.querySelectorAll('.spotlight-card')).map(c => c.dataset.appid));
+    spotlightAppIds.forEach(appId => {
+        if (!existingInGrid.has(appId)) {
+            const libCard = document.querySelector(`.game-card[data-appid="${appId}"]`);
+            if (libCard && typeof _insertSpotlightCard === 'function') _insertSpotlightCard(appId, libCard);
+        }
+    });
+
+    if (empty) empty.style.display = grid.querySelectorAll('.spotlight-card').length === 0 ? '' : 'none';
 }
 
 function applyCardUpdate(appId, data) {
