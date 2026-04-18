@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEAM GAME TRACKER PRO ULTIMATE DELUXE EDITION 3000</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #00ff00;
+            background-image:
+                repeating-linear-gradient(45deg, #ff00ff 0px, #ff00ff 10px, #00ff00 10px, #00ff00 20px),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ctext y='50' font-size='40'%3E🎮%3C/text%3E%3C/svg%3E");
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+            overflow-x: hidden;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext y='28' font-size='28'%3E💀%3C/text%3E%3C/svg%3E"), auto;
+        }
+
+        #marquee-top {
+            background: #ff0000;
+            color: #ffff00;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 8px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            border-bottom: 6px dashed #0000ff;
+            border-top: 6px dashed #0000ff;
+            text-shadow: 3px 3px #000, -1px -1px #ff00ff;
+        }
+
+        #marquee-top span {
+            display: inline-block;
+            animation: marquee 8s linear infinite;
+        }
+
+        @keyframes marquee {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000);
+            background-size: 400% 100%;
+            animation: rainbow-bg 2s linear infinite;
+            border: 10px ridge #gold;
+        }
+
+        @keyframes rainbow-bg {
+            from { background-position: 0% 50%; }
+            to { background-position: 400% 50%; }
+        }
+
+        .title {
+            font-size: clamp(28px, 6vw, 72px);
+            color: #ffffff;
+            text-shadow:
+                4px 4px 0 #ff0000,
+                8px 8px 0 #00ff00,
+                12px 12px 0 #0000ff;
+            animation: shake 0.3s infinite;
+            letter-spacing: 4px;
+        }
+
+        @keyframes shake {
+            0%   { transform: translate(2px, -2px) rotate(-1deg); }
+            25%  { transform: translate(-2px, 2px) rotate(1deg); }
+            50%  { transform: translate(2px, 2px) rotate(-1deg); }
+            75%  { transform: translate(-2px, -2px) rotate(1deg); }
+            100% { transform: translate(2px, -2px) rotate(-1deg); }
+        }
+
+        .subtitle {
+            font-size: 22px;
+            color: #ffff00;
+            text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff;
+            margin-top: 10px;
+        }
+
+        .visitor-counter {
+            display: inline-block;
+            background: #000080;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 4px 12px;
+            border: 3px inset #aaaaaa;
+            margin-top: 8px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: #000080;
+            padding: 10px;
+            border-right: 6px dashed #ff00ff;
+        }
+
+        .sidebar-right {
+            background: #800000;
+            padding: 10px;
+            border-left: 6px dashed #ffff00;
+        }
+
+        .sidebar h3 {
+            color: #ffff00;
+            font-size: 14px;
+            text-align: center;
+            text-shadow: 1px 1px #ff0000;
+            margin-bottom: 8px;
+            text-decoration: blink;
+        }
+
+        .sidebar-link {
+            display: block;
+            color: #00ffff;
+            text-decoration: underline;
+            font-size: 12px;
+            margin: 4px 0;
+            animation: blink 1s step-end infinite;
+        }
+
+        .sidebar-link:nth-child(even) { animation-delay: 0.5s; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .sidebar-img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border: 3px solid #ffff00;
+            margin: 6px 0;
+            filter: hue-rotate(0deg);
+            animation: huerotate 2s linear infinite;
+        }
+
+        @keyframes huerotate {
+            from { filter: hue-rotate(0deg) saturate(5); }
+            to { filter: hue-rotate(360deg) saturate(5); }
+        }
+
+        .center-content {
+            padding: 20px;
+            background: rgba(255,255,0,0.15);
+        }
+
+        .under-construction {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .under-construction img {
+            height: 60px;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-box {
+            background: #ff00ff;
+            border: 8px groove #00ff00;
+            padding: 15px;
+            margin: 15px 0;
+            transform: rotate(-2deg);
+            box-shadow: 10px 10px 0 #000000;
+        }
+
+        .stats-box h2 {
+            font-size: 28px;
+            color: #ffff00;
+            text-shadow: 3px 3px #000;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            background: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 8px;
+            border: 2px solid #00ff00;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            color: #ff0000;
+            display: block;
+            animation: pulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); color: #ff0000; }
+            to { transform: scale(1.2); color: #ffff00; }
+        }
+
+        .game-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            transform: rotate(1deg);
+            font-size: 13px;
+        }
+
+        .game-table th {
+            background: #ff0000;
+            color: #ffff00;
+            padding: 8px;
+            border: 3px solid #000;
+            text-shadow: 1px 1px #000;
+            font-size: 15px;
+        }
+
+        .game-table td {
+            padding: 6px 8px;
+            border: 2px solid #ff00ff;
+        }
+
+        .game-table tr:nth-child(odd) td { background: #00ffff; color: #000; }
+        .game-table tr:nth-child(even) td { background: #ff7700; color: #000; }
+
+        .game-table tr:hover td {
+            background: #ff0000 !important;
+            color: #ffff00 !important;
+            font-size: 18px;
+        }
+
+        .progress-bar-container {
+            background: #000;
+            border: 3px inset #aaa;
+            height: 24px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #ff0000 0px, #ff7700 10px, #ffff00 20px, #00ff00 30px, #0000ff 40px, #ff00ff 50px);
+            background-size: 200% 100%;
+            animation: progress-scroll 1s linear infinite;
+        }
+
+        @keyframes progress-scroll {
+            from { background-position: 0% 0%; }
+            to { background-position: 200% 0%; }
+        }
+
+        .achievement-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #000080;
+            border: 4px solid #ffff00;
+            color: #fff;
+            padding: 15px;
+            font-size: 14px;
+            max-width: 250px;
+            box-shadow: 0 0 30px #ff00ff;
+            animation: popup-bounce 1s ease infinite alternate;
+            z-index: 9999;
+        }
+
+        @keyframes popup-bounce {
+            from { transform: translateY(0) rotate(-2deg); }
+            to { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        .achievement-popup h4 {
+            color: #ffff00;
+            font-size: 16px;
+        }
+
+        .stars {
+            color: #ffff00;
+            font-size: 20px;
+            text-shadow: 0 0 10px #ff7700;
+        }
+
+        .floating-emoji {
+            position: fixed;
+            font-size: 40px;
+            animation: float-up 4s linear infinite;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes float-up {
+            from { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            to { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        .warning-box {
+            background: #ff0000;
+            color: #ffff00;
+            border: 6px dashed #000;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 18px;
+            text-align: center;
+            animation: warning-flash 0.4s step-end infinite;
+        }
+
+        @keyframes warning-flash {
+            0%, 100% { background: #ff0000; color: #ffff00; }
+            50% { background: #ffff00; color: #ff0000; }
+        }
+
+        .guestbook {
+            background: #fffff0;
+            border: 4px ridge #aaa;
+            padding: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .guestbook h3 {
+            color: #000080;
+            font-size: 18px;
+            text-decoration: underline;
+        }
+
+        .guestbook-entry {
+            border-bottom: 1px solid #ccc;
+            padding: 6px 0;
+        }
+
+        .guestbook-name { color: #0000ff; font-weight: bold; }
+        .guestbook-date { color: #999; font-size: 10px; }
+
+        .hit-counter-area {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .hit-counter {
+            display: inline-flex;
+            gap: 2px;
+        }
+
+        .hit-digit {
+            background: #000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            padding: 2px 6px;
+            border: 1px solid #333;
+        }
+
+        .award-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .award-badge {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: 2px solid #8b4513;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .best-viewed {
+            text-align: center;
+            background: #000080;
+            color: #ffffff;
+            font-size: 12px;
+            padding: 8px;
+            margin: 10px 0;
+            border: 2px solid #00ff00;
+        }
+
+        .best-viewed img { height: 20px; vertical-align: middle; }
+
+        #clock {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            color: #00ff00;
+            background: #000;
+            padding: 4px 10px;
+            border: 2px inset #333;
+            text-align: center;
+            display: block;
+            margin: 8px auto;
+            width: fit-content;
+        }
+
+        .loading-bar-wrapper {
+            margin: 10px 0;
+            font-size: 12px;
+            color: #ffff00;
+        }
+
+        footer {
+            background: #000000;
+            color: #00ff00;
+            text-align: center;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border-top: 6px dashed #ff00ff;
+        }
+
+        footer a { color: #ffff00; }
+
+        .tooltip-btn {
+            display: inline-block;
+            background: #ff0000;
+            color: #fff;
+            border: 3px outset #ff9999;
+            padding: 8px 16px;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .tooltip-btn:active { border-style: inset; }
+
+        .tooltip-btn:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        @media (max-width: 600px) {
+            .main-content { grid-template-columns: 1fr; }
+            .sidebar, .sidebar-right { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating emojis, placed via JS -->
+<div class="floating-emoji" style="left:5%; animation-delay:0s;">🎮</div>
+<div class="floating-emoji" style="left:20%; animation-delay:1s;">💀</div>
+<div class="floating-emoji" style="left:40%; animation-delay:2s;">🔥</div>
+<div class="floating-emoji" style="left:60%; animation-delay:0.5s;">⭐</div>
+<div class="floating-emoji" style="left:80%; animation-delay:1.5s;">🎮</div>
+<div class="floating-emoji" style="left:90%; animation-delay:3s;">💎</div>
+
+<!-- Achievement popup -->
+<div class="achievement-popup">
+    🏆 <h4>ACHIEVEMENT UNLOCKED!</h4>
+    <p><strong>"Visitor #1,337"</strong></p>
+    <div class="stars">★★★★★</div>
+    <small>You opened this page. Congratulations. You are special.</small>
+</div>
+
+<!-- Top marquee -->
+<div id="marquee-top">
+    <span>
+        🎮 WELCOME TO STEAM GAME TRACKER PRO ULTIMATE DELUXE EDITION 3000 🎮 &nbsp;&nbsp;&nbsp;
+        ⚠️ BEST VIEWED IN INTERNET EXPLORER 6.0 AT 800x600 RESOLUTION ⚠️ &nbsp;&nbsp;&nbsp;
+        🔥 NOW WITH 100% MORE FEATURES THAN BEFORE 🔥 &nbsp;&nbsp;&nbsp;
+        💀 WARNING: SITE MAY CAUSE TEMPORARY BLINDNESS 💀 &nbsp;&nbsp;&nbsp;
+        ✨ UNDER CONSTRUCTION — EXPECTED COMPLETION: NEVER ✨ &nbsp;&nbsp;&nbsp;
+    </span>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <div class="title">🎮 STEAM GAME TRACKER 🎮</div>
+    <div class="subtitle">✨ PRO ULTIMATE DELUXE EDITION 3000 ✨</div>
+    <div class="subtitle" style="font-size:14px; color:#ffffff; margin-top:5px;">
+        The ONLY Steam tracker recommended by 9 out of 10 dentists
+    </div>
+    <div class="visitor-counter">
+        👁️ VISITORS: 0000069 👁️
+    </div>
+    <br>
+    <span id="clock">00:00:00</span>
+</div>
+
+<!-- Main -->
+<div class="main-content">
+
+    <!-- Left sidebar -->
+    <div class="sidebar">
+        <h3>🔗 COOL LINKS 🔗</h3>
+        <a class="sidebar-link" href="#">My Geocities page</a>
+        <a class="sidebar-link" href="#">Free Robux generator</a>
+        <a class="sidebar-link" href="#">Click here to WIN!!</a>
+        <a class="sidebar-link" href="#">Hot singles nearby</a>
+        <a class="sidebar-link" href="#">Download more RAM</a>
+        <a class="sidebar-link" href="#">Totally safe file.exe</a>
+        <a class="sidebar-link" href="#">Join my webring!</a>
+
+        <br>
+        <h3>☀️ WEATHER ☀️</h3>
+        <div style="color:#fff; font-size:12px; text-align:center;">
+            🌡️ Currently:<br>
+            <span style="font-size:28px; animation: pulse 0.5s infinite alternate;">🌈</span><br>
+            <strong style="color:#ff0;">69°C</strong><br>
+            <em>Feels like: too much</em>
+        </div>
+
+        <br>
+        <h3>🐾 MY PET 🐾</h3>
+        <div style="text-align:center; font-size:48px; animation: shake 0.5s infinite;">
+            🐱
+        </div>
+        <div style="color:#ccc; font-size:10px; text-align:center;">
+            Click to feed him<br>(he cannot be fed)
+        </div>
+
+        <br>
+        <h3>🎵 NOW PLAYING 🎵</h3>
+        <div style="color:#00ffff; font-size:11px; text-align:center;">
+            ▶️ Crazy Frog - Axel F<br>
+            🔊 Volume: MAXIMUM<br>
+            <span style="color:#ff0;">(you can't hear it)</span>
+        </div>
+    </div>
+
+    <!-- Center -->
+    <div class="center-content">
+
+        <div class="under-construction" style="font-size:40px;">
+            🚧 🚧 🚧<br>
+            <span style="font-size:20px; color:#ff0000; font-weight:bold;">UNDER CONSTRUCTION</span><br>
+            🚧 🚧 🚧
+        </div>
+
+        <div class="warning-box">
+            ⚠️ WARNING: THIS WEBSITE CONTAINS GAMES ⚠️
+        </div>
+
+        <div class="stats-box">
+            <h2>📊 YOUR GAMING STATS (LIVE™)</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    Games Owned<br>
+                    <span class="stat-number" id="game-count">...</span>
+                </div>
+                <div class="stat-item">
+                    Hours Wasted<br>
+                    <span class="stat-number" id="hours-count">...</span>
+                </div>
+                <div class="stat-item">
+                    % of Life Lost<br>
+                    <span class="stat-number" id="life-count">...</span>
+                </div>
+                <div class="stat-item">
+                    Regret Level<br>
+                    <span class="stat-number" id="regret-count">...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-bar-wrapper">
+            Loading your games... (please wait, this may take 4-6 business days)
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 37%;"></div>
+            </div>
+            <span style="font-size:11px; color:#ff0;">37% — Fetching achievements for Farmville 2...</span>
+        </div>
+
+        <h2 style="color:#ff0000; text-shadow:2px 2px #000; margin: 15px 0 8px; font-size:22px;">🎮 YOUR GAME LIBRARY (TOP PICKS)</h2>
+
+        <table class="game-table">
+            <thead>
+                <tr>
+                    <th>Game Title</th>
+                    <th>Status</th>
+                    <th>Hours</th>
+                    <th>Rating</th>
+                    <th>Completion %</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>🎮 Half-Life 3</td>
+                    <td>🌀 Dreaming</td>
+                    <td>0</td>
+                    <td>★★★★★ (unreleased)</td>
+                    <td>
+                        <div class="progress-bar-container" style="height:14px;">
+                            <div class="progress-bar" style="width:0%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>💀 Dark Souls</td>
+                    <td>😭 Suffering</td>
+                    <td>847</td>
+                    <td>★★★★★ (send help)</td>
+                    <td>
+                        <div class="progress-bar-container" style="height:14px;">
+                            <div class="progress-bar" style="width:3%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>😴 The Sims 4</td>
+                    <td>🏗️ Building houses for virtual people instead of living my life</td>
+                    <td>1,337</td>
+                    <td>★★★★★</td>
+                    <td>
+                        <div class="progress-bar-container" style="height:14px;">
+                            <div class="progress-bar" style="width:69%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>🚂 Euro Truck Simulator 2</td>
+                    <td>✅ This is my life now</td>
+                    <td>4,200</td>
+                    <td>★★★★★ (it's peaceful)</td>
+                    <td>
+                        <div class="progress-bar-container" style="height:14px;">
+                            <div class="progress-bar" style="width:100%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>🐴 Horse Game 2004</td>
+                    <td>❓ Why do I own this</td>
+                    <td>0.1</td>
+                    <td>☆☆☆☆☆</td>
+                    <td>
+                        <div class="progress-bar-container" style="height:14px;">
+                            <div class="progress-bar" style="width:0%;"></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="text-align:center; margin: 15px 0;">
+            <button class="tooltip-btn" onclick="alert('LOADING... please wait\n\n(nothing will happen)')">🔄 REFRESH STATS</button>
+            <button class="tooltip-btn" onclick="alert('Your library has been synced!\n\n(it has not been synced)')">🔁 SYNC LIBRARY</button>
+            <button class="tooltip-btn" onclick="alert('Added to wishlist: Horse Game 2004\n\nYou already own this.')">❤️ ADD TO WISHLIST</button>
+        </div>
+
+        <!-- Awards section -->
+        <h2 style="color:#ff0000; text-shadow:2px 2px #000; margin: 15px 0 8px; font-size:22px;">🏆 AWARDS & RECOGNITION</h2>
+        <div class="award-badges">
+            <div class="award-badge">🥇 Best Website 2003</div>
+            <div class="award-badge">⭐ Editor's Choice (My Mum)</div>
+            <div class="award-badge">🔥 Hot Site of the Week</div>
+            <div class="award-badge">💎 Diamond Quality</div>
+            <div class="award-badge">🌟 5 Stars (I gave myself)</div>
+            <div class="award-badge">🏅 Most Colors Used</div>
+            <div class="award-badge">💻 Y2K Compliant</div>
+            <div class="award-badge">🎨 Best Use of CSS</div>
+        </div>
+
+        <!-- Guestbook -->
+        <div class="guestbook">
+            <h3>📖 GUESTBOOK (sign mine and I sign yours!)</h3>
+            <div class="guestbook-entry">
+                <span class="guestbook-name">xXGamer4LifeXx</span>
+                <span class="guestbook-date"> — 03/14/2003</span><br>
+                "cool site!! added to favorites!! :-)"
+            </div>
+            <div class="guestbook-entry">
+                <span class="guestbook-name">SNES_Nerd_2000</span>
+                <span class="guestbook-date"> — 03/15/2003</span><br>
+                "u need 2 add more blinky things. also ur hit counter is wrong lol"
+            </div>
+            <div class="guestbook-entry">
+                <span class="guestbook-name">anonymous</span>
+                <span class="guestbook-date"> — 03/16/2003</span><br>
+                "plz add a shoutbox"
+            </div>
+            <div class="guestbook-entry">
+                <span class="guestbook-name">webmaster_tom</span>
+                <span class="guestbook-date"> — 03/16/2003</span><br>
+                "your background gave me a seizure. 10/10 would visit again"
+            </div>
+            <div style="margin-top:8px;">
+                <input type="text" placeholder="Your name" style="border:2px inset #aaa; padding:3px; font-family:monospace;">
+                <input type="text" placeholder="Your message" style="border:2px inset #aaa; padding:3px; font-family:monospace; width:200px;">
+                <button class="tooltip-btn" style="font-size:12px; padding:3px 8px;" onclick="alert('Message posted!\n\n(it was not posted)')">Post!</button>
+            </div>
+        </div>
+
+        <div class="best-viewed">
+            🖥️ Best viewed in <strong>Internet Explorer 6</strong> at <strong>800×600</strong> resolution with <strong>256 colors</strong><br>
+            Also works in Netscape Navigator 4.7 (probably)
+        </div>
+
+    </div>
+
+    <!-- Right sidebar -->
+    <div class="sidebar-right">
+        <h3 style="color:#ffff00;">📈 POLL</h3>
+        <div style="color:#fff; font-size:12px;">
+            <p style="margin-bottom:6px;">What is your favorite game genre?</p>
+            <label><input type="radio" name="poll"> RPG (best)</label><br>
+            <label><input type="radio" name="poll"> FPS (ok)</label><br>
+            <label><input type="radio" name="poll"> RTS (nerd)</label><br>
+            <label><input type="radio" name="poll"> Horse games</label><br>
+            <label><input type="radio" name="poll"> I don't play games (get out)</label><br>
+            <button class="tooltip-btn" style="font-size:11px; padding:3px 8px; margin-top:6px;" onclick="alert('Vote submitted!\n\n(it was not submitted)')">Vote!</button>
+        </div>
+
+        <br>
+        <h3 style="color:#ffff00;">🌡️ STEAM STATUS</h3>
+        <div style="color:#fff; font-size:12px; text-align:center;">
+            <span style="color:#00ff00; font-size:20px;">●</span> Online<br>
+            <span style="color:#ffff00;">1,337 friends online</span><br>
+            <em style="font-size:10px;">(you have 2 friends)</em>
+        </div>
+
+        <br>
+        <h3 style="color:#ffff00;">🎰 GAME ROULETTE</h3>
+        <div style="color:#fff; font-size:12px; text-align:center;">
+            Can't decide what to play?<br><br>
+            <button class="tooltip-btn" style="font-size:11px; padding:4px 8px;" id="roulette-btn">🎲 SPIN!</button>
+            <div id="roulette-result" style="margin-top:6px; color:#ffff00; font-weight:bold;"></div>
+        </div>
+
+        <br>
+        <h3 style="color:#ffff00;">💬 SHOUTBOX</h3>
+        <div style="background:#000; color:#00ff00; font-family:monospace; font-size:10px; padding:6px; height:80px; overflow:hidden;">
+            <div id="shoutbox-msgs"></div>
+        </div>
+
+        <br>
+        <div class="hit-counter-area">
+            <div style="color:#ffff00; font-size:11px; margin-bottom:3px;">TOTAL HITS:</div>
+            <div class="hit-counter">
+                <span class="hit-digit">0</span>
+                <span class="hit-digit">0</span>
+                <span class="hit-digit">0</span>
+                <span class="hit-digit">0</span>
+                <span class="hit-digit">6</span>
+                <span class="hit-digit">9</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div id="marquee-top" style="margin-top:10px;">
+    <span style="animation-duration:12s; animation-direction:reverse;">
+        💀 &copy; 2003–2026 STEAM GAME TRACKER PRO ULTIMATE DELUXE INC. ALL RIGHTS RESERVED AND ALSO SOME LEFTS 💀 &nbsp;&nbsp;&nbsp;
+        🌐 This site is hosted on a potato &nbsp;&nbsp;&nbsp;
+        🍪 No cookies were used (this is a lie) &nbsp;&nbsp;&nbsp;
+        📧 Contact webmaster: webmaster@webmaster.webmaster &nbsp;&nbsp;&nbsp;
+    </span>
+</div>
+
+<footer>
+    <p>Made with ❤️ and Microsoft FrontPage 2000</p>
+    <p style="margin-top:5px; color:#999;">This site last updated: <strong style="color:#ff0;">sometime in 2003</strong></p>
+    <p style="margin-top:5px;">
+        <a href="#">Home</a> | <a href="#">About</a> | <a href="#">Contact</a> | <a href="#">Webring</a> | <a href="#">Links</a> | <a href="#">Under Construction</a>
+    </p>
+    <p style="margin-top:8px; font-size:10px; color:#666;">
+        Optimized for 56k modem. Page size: 4.2MB (mostly animated GIFs). Load time: ~47 minutes.
+    </p>
+</footer>
+
+<script>
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').textContent =
+            now.toLocaleTimeString('en-GB') + ' — LOCAL TIME (may be wrong)';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Fake live stats that keep changing
+    const gameCount = document.getElementById('game-count');
+    const hoursCount = document.getElementById('hours-count');
+    const lifeCount = document.getElementById('life-count');
+    const regretCount = document.getElementById('regret-count');
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateStats() {
+        gameCount.textContent = randomInt(420, 9999);
+        hoursCount.textContent = randomInt(10000, 99999).toLocaleString();
+        lifeCount.textContent = randomInt(60, 99) + '%';
+        regretCount.textContent = ['MAX', '∞', 'YES', '💀', 'A LOT'][Math.floor(Math.random() * 5)];
+    }
+    setInterval(updateStats, 800);
+    updateStats();
+
+    // Game roulette
+    const games = [
+        'Horse Game 2004', 'Dark Souls (good luck)', 'Half-Life 3 (lol)',
+        'Euro Truck Simulator', 'FIFA 2003', 'Minesweeper',
+        'Goat Simulator', 'Farming Simulator', 'Just go outside',
+        'Nothing. Stare at the wall.', 'Your backlog (all 847 games)',
+        'The one you\'ve been meaning to finish for 6 years',
+    ];
+    document.getElementById('roulette-btn').addEventListener('click', function() {
+        const result = games[Math.floor(Math.random() * games.length)];
+        document.getElementById('roulette-result').textContent = result;
+    });
+
+    // Shoutbox fake messages
+    const shoutMessages = [
+        '<xXGamer4LifeXx> hi',
+        '<SNES_Nerd_2000> first',
+        '<anonymous> nice site',
+        '<webmaster_tom> ty!',
+        '<anonymous> how do i leave',
+        '<xXGamer4LifeXx> u cant',
+        '<GamingLegend99> lol',
+        '<anonymous> send help',
+        '<webmaster_tom> no',
+    ];
+    let shoutIndex = 0;
+    const shoutbox = document.getElementById('shoutbox-msgs');
+    setInterval(() => {
+        const msg = document.createElement('div');
+        msg.textContent = shoutMessages[shoutIndex % shoutMessages.length];
+        shoutbox.appendChild(msg);
+        shoutbox.scrollTop = shoutbox.scrollHeight;
+        shoutIndex++;
+    }, 2000);
+
+    // Cursor trail
+    document.addEventListener('mousemove', (e) => {
+        if (Math.random() > 0.85) {
+            const star = document.createElement('div');
+            star.textContent = ['✨','💀','🎮','⭐','🔥'][Math.floor(Math.random()*5)];
+            star.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;pointer-events:none;z-index:9998;font-size:20px;animation:float-up 1.5s linear forwards;`;
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
+        }
+    });
+</script>
+</body>
+</html>
